@@ -14,3 +14,899 @@
 .main-content {
   padding: 2rem;
 }
+/* --- Top Header Styles --- */
+.top-header {
+  background-color: #064e3b; /* Deep Emerald Green */
+  color: #e5e7eb; /* Soft white/gray */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 5%; /* 5% padding keeps it aligned on wide screens */
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.contact-info {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon {
+  color: #fbbf24; /* Gold accent color for the icons */
+}
+
+.social-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.social-links a {
+  color: #e5e7eb;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+}
+
+.social-links a:hover {
+  color: #fbbf24; /* Turns gold when you hover over it */
+}
+/* --- Main Navbar Styles --- */
+.main-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 5%;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Soft shadow for depth */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Logo Styling */
+.navbar-brand a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-img {
+  height: 100px; /* Adjust this based on your image size */
+  width: auto;
+  object-fit: contain;
+}
+
+.brand-text {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #064e3b; /* Deep Emerald Green */
+}
+
+/* Navigation Links & Dropdowns */
+.navbar-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropbtn {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  padding: 10px 0;
+  transition: color 0.3s ease;
+}
+
+.dropdown:hover .dropbtn {
+  color: #fbbf24; /* Gold on hover */
+}
+
+/* The Dropdown Box (Hidden by default) */
+.dropdown-content {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  top: 150%; /* Pushes it slightly below the text */
+  left: 0;
+  background-color: #ffffff;
+  min-width: 200px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  z-index: 1;
+  transition: all 0.3s ease; /* Smooth fade in */
+  transform: translateY(10px);
+}
+
+/* Show the dropdown on hover */
+.dropdown:hover .dropdown-content {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: #333;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.dropdown-content a:last-child {
+  border-bottom: none;
+}
+
+.dropdown-content a:hover {
+  background-color: #f9fafb;
+  color: #064e3b;
+}
+
+/* Right Side Button */
+.login-btn {
+  background-color: #064e3b;
+  color: white;
+  padding: 0.6rem 1.5rem;
+  border-radius: 25px; /* Pill shape */
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.login-btn:hover {
+  background-color: #fbbf24;
+  color: #064e3b;
+}
+
+.dropbtn {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  padding: 10px 0;
+  transition: color 0.3s ease;
+  display: flex; /* Added flexbox */
+  align-items: center; /* Aligns arrow vertically with text */
+  gap: 5px; /* Adds space between text and arrow */
+}
+
+/* Add this new class for the arrow size */
+.dropdown-icon {
+  font-size: 0.75rem; /* Makes the arrow slightly smaller than the text */
+  margin-top: 2px; /* Slight visual tweak to center it perfectly */
+}
+
+/* --- Hero Section Styles --- */
+.hero-section {
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  min-height: 85vh; /* Slightly taller */
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-overlay {
+  /* Changed from solid green to a darker, more transparent gradient so your image shows! */
+  background: linear-gradient(to right, rgba(6, 78, 59, 0.9) 0%, rgba(6, 78, 59, 0.5) 100%);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 5% 0 5%;
+}
+
+/* THE FIX FOR THE ZOOM ISSUE */
+/* Fix the large side gaps */
+.hero-content-wrapper {
+  max-width: 1400px; /* Increased from 1200px to stretch wider */
+  width: 95%; /* Takes up 95% of the screen on smaller monitors */
+  margin: 0 auto; 
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* --- Updated Layout & Map Overlap --- */
+.hero-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4rem;
+  position: relative; /* Crucial for controlling the overlap layers */
+}
+
+.hero-left {
+  flex: 1.2; /* Allows the left side to stretch a bit more */
+  color: white;
+  max-width: 650px;
+  z-index: 2; /* Ensures the text and buttons stay ON TOP of the map */
+}
+
+.hero-right {
+  flex: 1;
+  max-width: 550px; 
+  width: 100%;
+  height: 480px; /* Taller map to fill that empty space */
+  border-radius: 20px;
+  overflow: hidden;
+  
+  /* THE OVERLAP MAGIC */
+  margin-left: -60px; /* Pulls the map to the left */
+  transform: translateY(-20px); /* Lifts the map up slightly to break the grid */
+  z-index: 1; /* Keeps the map behind the text box */
+  
+  /* 3D Floating Effect */
+  box-shadow: -20px 25px 50px rgba(0,0,0,0.5); /* Strong shadow directed left/down */
+  border: 6px solid rgba(255,255,255,0.2);
+  cursor: pointer;
+  position: relative;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+.hero-description {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 2rem;
+}
+
+/* New Styles for the Trusted Faces */
+/* --- Updated Trusted Faces --- */
+.trusted-faces-container {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* More space between image and text */
+  margin-bottom: 2.5rem;
+  background: rgba(255, 255, 255, 0.15); /* Slightly more visible */
+  padding: 12px 25px; /* Larger padding */
+  border-radius: 50px;
+  width: fit-content;
+  backdrop-filter: blur(8px); /* Adds a premium glass effect */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.trusted-faces-img {
+  width: 90px; /* Increased from 60px */
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fbbf24; /* Thicker gold border */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.trusted-text {
+  font-size: 1.2rem; /* Larger font */
+  font-style: italic;
+  font-weight: 600; /* Bolder text */
+  letter-spacing: 0.5px;
+}
+
+/* Buttons */
+.hero-btns {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.book-now-btn {
+  background-color: #22c55e; 
+  color: white;
+  padding: 1rem 2.5rem;
+  border: none;
+  border-radius: 5px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: transform 0.2s;
+}
+
+.book-now-btn:hover {
+  transform: translateY(-2px);
+}
+
+.play-video {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.play-icon {
+  width: 40px;
+  height: 40px;
+  background: white;
+  color: #064e3b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+}
+
+/* FIXING THE MAP STRETCH */
+.hero-right {
+  flex: 1;
+  max-width: 500px; /* Stops map from stretching infinitely */
+  width: 100%;
+  height: 380px; /* Fixed height */
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  cursor: pointer;
+  position: relative;
+  border: 4px solid rgba(255,255,255,0.2);
+}
+/* New style for the map title */
+.map-title {
+  position: absolute;
+  top: 15px;
+  left: 35px;
+  background: rgba(255, 255, 255, 0.95); /* Solid white, slightly transparent */
+  color: #064e3b; /* Emerald green text */
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  z-index: 1000; /* Keeps it above the map tiles */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15); /* Soft shadow */
+}
+.map-wrapper { height: 100%; width: 100%; }
+
+.map-hint {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  z-index: 1000;
+}
+
+/* Centering the Stats Cards */
+.stats-container {
+  display: flex;
+  background: white;
+  border-radius: 15px 15px 0 0;
+  padding: 2rem;
+  justify-content: space-around;
+  box-shadow: 0 -10px 20px rgba(0,0,0,0.1);
+  margin-top: auto;
+  width: 100%;
+}
+
+.stat-card { text-align: center; color: #064e3b; flex: 1; border-right: 1px solid #eee; }
+.stat-card:last-child { border-right: none; }
+.stat-card h2 { font-size: 2.5rem; margin-bottom: 5px; }
+.stat-card p { font-size: 0.9rem; font-weight: 700; opacity: 0.7; }
+
+
+
+/* --- Featured Packages Section --- */
+.packages-section {
+  background-color: #f8f9fa; /* Light gray background to make white cards pop */
+  padding: 5rem 0;
+}
+
+.packages-container {
+  max-width: 1400px;
+  width: 95%;
+  margin: 0 auto;
+}
+
+.packages-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.packages-header h2 {
+  font-size: 2.5rem;
+  color: #064e3b; /* Theme Emerald */
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+}
+
+.packages-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* CSS Grid for Cards */
+.packages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+/* Individual Card Styling */
+.package-card {
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+}
+
+.package-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(6, 78, 59, 0.1); /* Subtle green shadow on hover */
+}
+
+.card-image-wrapper {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.package-card:hover .card-image {
+  transform: scale(1.05); /* Slight zoom on image when card is hovered */
+}
+
+.card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Pushes the button to the bottom if titles are different lengths */
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.card-price {
+  color: #d97706; /* Theme Gold/Orange instead of harsh red */
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.card-meta {
+  margin-bottom: 1.5rem;
+}
+
+.duration-badge {
+  background-color: #e6f4ea; /* Very light green */
+  color: #064e3b; /* Dark emerald text */
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+/* Card Button */
+.view-details-btn {
+  margin-top: auto; /* Aligns buttons at the bottom of the card */
+  background-color: #064e3b;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.view-details-btn:hover {
+  background-color: #fbbf24; /* Turns gold on hover */
+  color: #064e3b;
+}
+
+
+/* --- Testimonials Section --- */
+.testimonials-section {
+  background-color: #f0fdf4; /* Very soft, light green background */
+  padding: 5rem 0;
+}
+
+.testimonials-container {
+  max-width: 1200px;
+  width: 95%;
+  margin: 0 auto;
+}
+
+.testimonials-header {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+.testimonials-header h2 {
+  font-size: 2.5rem;
+  color: #064e3b;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+}
+
+.testimonials-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* Grid Layout */
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+/* Review Card */
+.review-card {
+  background: white;
+  padding: 2.5rem 2rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+}
+
+.review-card:hover {
+  transform: translateY(-5px);
+}
+
+.quote-icon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 3rem;
+  color: #e5e7eb; /* Light gray so it sits quietly in the background */
+  opacity: 0.5;
+}
+
+.stars {
+  color: #fbbf24; /* Theme Gold */
+  display: flex;
+  gap: 5px;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+}
+
+.review-text {
+  font-size: 1rem;
+  color: #4b5563;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  flex: 1; /* Pushes the author info to the bottom evenly */
+  font-style: italic;
+}
+
+/* Author Info Layout */
+.review-author {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-top: 1px solid #f3f4f6;
+  padding-top: 1.5rem;
+}
+
+.author-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.author-details h4 {
+  font-size: 1.1rem;
+  color: #1f2937;
+  margin-bottom: 2px;
+}
+
+.author-details span {
+  font-size: 0.85rem;
+  color: #064e3b;
+  font-weight: 600;
+}
+
+/* --- About Preview Section --- */
+.about-preview-section {
+  background-color: #ffffff; /* Clean white background */
+  padding: 6rem 0;
+}
+
+.about-preview-container {
+  max-width: 1300px;
+  width: 95%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4rem; /* Space between text and video */
+}
+
+/* Left Side: Text Box */
+.about-text-content {
+  flex: 1;
+  background: #ffffff;
+  padding: 3rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06); /* Soft floating shadow */
+  border: 1px solid #f3f4f6;
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #6b7280;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.about-text-content h2 {
+  font-size: 2.2rem;
+  color: #064e3b; /* Theme Emerald */
+  margin-bottom: 1.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.primary-text {
+  font-size: 1.1rem;
+  color: #374151;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.secondary-text {
+  font-size: 1rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.learn-more-btn {
+  background-color: transparent;
+  color: #064e3b;
+  border: 2px solid #064e3b;
+  padding: 0.8rem 2rem;
+  border-radius: 5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.learn-more-btn:hover {
+  background-color: #064e3b;
+  color: #ffffff;
+}
+
+/* Right Side: Video */
+.about-video-wrapper {
+  flex: 1.2; /* Makes the video slightly wider than the text box */
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9; /* Perfect YouTube video ratio */
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.youtube-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+}
+
+/* Make it stack nicely on smaller screens (Tablets & Phones) */
+@media (max-width: 968px) {
+  .about-preview-container {
+    flex-direction: column;
+    gap: 3rem;
+  }
+  
+  .about-text-content {
+    padding: 2rem;
+  }
+}
+
+/* --- Footer Section --- */
+.main-footer {
+  background-color: #022c22; /* Deep dark green */
+  color: #d1d5db; /* Light gray text */
+  padding-top: 5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.footer-container {
+  max-width: 1300px;
+  width: 95%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1.2fr; /* 4 columns, first and last are wider */
+  gap: 3rem;
+  padding-bottom: 4rem;
+}
+
+/* Brand Column */
+.footer-logo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.footer-logo {
+  height: 60px;
+  background: white; /* Optional: adds a white background if your logo is dark */
+  padding: 5px;
+  border-radius: 8px;
+}
+
+.footer-brand-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 1px;
+}
+
+.contact-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #9ca3af;
+}
+
+.contact-line .icon {
+  color: #34d399; /* Bright green accent for icons */
+  margin-top: 4px;
+}
+
+/* Social Circles */
+.social-circles {
+  display: flex;
+  gap: 12px;
+  margin-top: 2rem;
+}
+
+.social-circles a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 35px;
+  height: 35px;
+  border: 1px solid #4b5563;
+  border-radius: 50%;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.social-circles a:hover {
+  background-color: #34d399;
+  border-color: #34d399;
+  color: #022c22;
+}
+
+/* Links Columns */
+.footer-heading {
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 2rem;
+}
+
+.links-col ul {
+  list-style: none;
+  padding: 0;
+}
+
+.links-col li {
+  margin-bottom: 1rem;
+}
+
+.links-col a {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.links-col a:hover {
+  color: white;
+}
+
+/* Office Cards */
+.office-card {
+  background-color: #064e3b; /* Slightly lighter green box */
+  padding: 1.2rem;
+  border-radius: 12px;
+  margin-bottom: 1.2rem;
+}
+
+.office-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 0.8rem;
+}
+
+.flag-icon {
+  font-size: 1.5rem;
+}
+
+.office-card-header h4 {
+  color: white;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.office-card p {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.office-phone {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: #34d399;
+  margin-bottom: 5px;
+}
+
+/* Bottom Bar */
+.footer-bottom {
+  border-top: 1px solid #1f2937;
+  padding: 1.5rem 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+  .footer-container {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+  }
+}

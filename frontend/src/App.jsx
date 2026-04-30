@@ -1,29 +1,49 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import TopHeader from './components/TopHeader';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+
+// Import your page sections
+import Hero from './components/Hero';
+import AboutPreview from './components/AboutPreview';
+import FeaturedPackages from './components/FeaturedPackages';
+import Testimonials from './components/Testimonials';
 import './styles/AppLayout.css';
 
-// Temporary placeholder components (We will move these to the 'pages' folder later)
-const Home = () => <h2>Home Page: Find Your Package</h2>;
-const Packages = () => <h2>Packages: Browse All Hajj & Umrah Plans</h2>;
-const Login = () => <h2>Login to Your Dashboard</h2>;
+// 1. Build the actual Home page component by combining the sections here!
+const Home = () => {
+  return (
+    <>
+      <Hero />
+      <AboutPreview />
+      <FeaturedPackages />
+      <Testimonials />
+    </>
+  );
+};
+
+// Placeholder pages for now
+const Packages = () => <h2 style={{padding: '5rem', textAlign: 'center'}}>Packages Page Coming Soon</h2>;
+const Login = () => <h2 style={{padding: '5rem', textAlign: 'center'}}>Login Page Coming Soon</h2>;
 
 function App() {
   return (
     <BrowserRouter>
-      {/* A simple navigation bar */}
-      <nav className="navbar">
-        <Link to="/">Pothik Bondhu</Link>
-        <Link to="/packages">Packages</Link>
-        <Link to="/login">Login</Link>
-      </nav>
+      {/* Persistent Top Navigation */}
+      <TopHeader />
+      <Navbar />
 
-      {/* The main content area where pages will render */}
-      <main className="main-content">
+      {/* Dynamic Content Area */}
+      <main className="main-content" style={{ minHeight: '60vh' }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/packages" element={<Packages />} />
           <Route path="/login" element={<Login />} />
         </Routes>
       </main>
+
+      {/* Persistent Footer */}
+      <Footer />
     </BrowserRouter>
   );
 }
