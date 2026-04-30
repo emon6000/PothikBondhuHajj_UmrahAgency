@@ -1,0 +1,16 @@
+/* src/styles/AppLayout.css */
+.navbar {
+  background-color: #0056b3;
+  padding: 1rem 2rem;
+  color: white;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.navbar a:hover {
+  text-decoration: underline;
+}
+
+.main-content {
+  padding: 2rem;
+}
