@@ -18,6 +18,7 @@ const TopHeader = () => {
 
       {/* Right Side: Social Media Links */}
       <div className="social-links">
+        <p>Connect Us :</p>
         <a href="#" aria-label="Facebook"><FaFacebookF /></a>
         <a href="#" aria-label="Twitter"><FaTwitter /></a>
         <a href="#" aria-label="Instagram"><FaInstagram /></a>

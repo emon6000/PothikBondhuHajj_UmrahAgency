@@ -9,7 +9,19 @@ import AboutPreview from './components/AboutPreview';
 import FeaturedPackages from './components/FeaturedPackages';
 import Testimonials from './components/Testimonials';
 import './styles/AppLayout.css';
+import ScrollToTop from './components/ScrollToTop';
 
+import HajjPage from './pages/public/HajjPage';
+import UmrahPage from './pages/public/UmrahPage';
+import PreRegistration from './pages/public/PreRegistration';
+import VisaRequirements from './pages/public/VisaRequirements';
+import PackagesPage from './pages/public/PackagesPage';
+import AboutUs from './pages/public/AboutUs';
+import Agents from './pages/public/Agents';
+import Contact from './pages/public/Contact';
+import Terms from './pages/public/Terms';
+import Privacy from './pages/public/Privacy';
+import HajjTraining from './pages/public/HajjTraining';
 // 1. Build the actual Home page component by combining the sections here!
 const Home = () => {
   return (
@@ -22,14 +34,14 @@ const Home = () => {
   );
 };
 
-// Placeholder pages for now
-const Packages = () => <h2 style={{padding: '5rem', textAlign: 'center'}}>Packages Page Coming Soon</h2>;
-const Login = () => <h2 style={{padding: '5rem', textAlign: 'center'}}>Login Page Coming Soon</h2>;
+import Login from './pages/public/Login';
+import PackageDetails from './pages/public/PackageDetails';
 
 function App() {
   return (
     <BrowserRouter>
       {/* Persistent Top Navigation */}
+      <ScrollToTop />
       <TopHeader />
       <Navbar />
 
@@ -37,8 +49,21 @@ function App() {
       <main className="main-content" style={{ minHeight: '60vh' }}>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/packages" element={<Packages />} />
+
+          {/* New Routes we just created */}
+          <Route path="/hajj" element={<HajjPage />} />
+          <Route path="/umrah" element={<UmrahPage />} />
+          <Route path="/hajj/pre-registration" element={<PreRegistration />} />
+          <Route path="/visa-requirements" element={<VisaRequirements />} />
+          <Route path="/packages" element={<PackagesPage />} />
+          <Route path="/packages/:id" element={<PackageDetails />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/agents" element={<Agents />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/training" element={<HajjTraining />} />
         </Routes>
       </main>
 

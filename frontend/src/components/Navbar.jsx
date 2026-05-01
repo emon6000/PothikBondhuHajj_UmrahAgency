@@ -18,21 +18,22 @@ const Navbar = () => {
         
         {/* Hajj Dropdown */}
         <li className="dropdown">
-          {/* 2. Add the icon inside the dropbtn span */}
-          <span className="dropbtn">Hajj <FaChevronDown className="dropdown-icon" /></span>
+          {/* Changed span to Link */}
+          <Link to="/hajj" className="dropbtn">Hajj <FaChevronDown className="dropdown-icon" /></Link>
           <div className="dropdown-content">
             <Link to="/hajj/pre-registration">Pre-registration</Link>
-            <Link to="/hajj/visa-requirements">Visa Requirements</Link>
-            <Link to="/packages?type=hajj">Packages</Link>
+            <Link to="/visa-requirements?type=hajj">Visa Requirements</Link>
+            <Link to="/packages?type=hajj">Hajj Packages</Link>
           </div>
         </li>
 
         {/* Umrah Dropdown */}
         <li className="dropdown">
-          <span className="dropbtn">Umrah <FaChevronDown className="dropdown-icon" /></span>
+          {/* Changed span to Link */}
+          <Link to="/umrah" className="dropbtn">Umrah <FaChevronDown className="dropdown-icon" /></Link>
           <div className="dropdown-content">
-            <Link to="/umrah/visa-requirements">Visa Requirements</Link>
-            <Link to="/packages?type=umrah">Packages</Link>
+            <Link to="/visa-requirements?type=umrah">Visa Requirements</Link>
+            <Link to="/packages?type=umrah">Umrah Packages</Link>
           </div>
         </li>
 
@@ -40,9 +41,9 @@ const Navbar = () => {
         <li className="dropdown">
           <span className="dropbtn">About <FaChevronDown className="dropdown-icon" /></span>
           <div className="dropdown-content">
-            <Link to="/about-us">About Us</Link>
+            <Link to="/about">About Us</Link>
             <Link to="/agents">Agents</Link>
-            <Link to="/contacts">Contacts</Link>
+            <Link to="/contact">Contacts</Link>
           </div>
         </li>
 

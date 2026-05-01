@@ -1,39 +1,11 @@
-// src/components/FeaturedPackages.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import packagesData from '../data/packages.json'; // 1. Import the JSON database!
 
 const FeaturedPackages = () => {
-  // Dummy data for our packages
-  const packages = [
-    {
-      id: 1,
-      title: "Hajj Pre-Registration 2026-2027 From Bangladesh",
-      price: "BDT 30,000 /Per Person",
-      duration: "Registration",
-      image: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&q=80&w=600",
-    },
-    {
-      id: 2,
-      title: "40 Days Standard Hajj Package From Bangladesh",
-      price: "Starts from BDT 6,00,000 /Per Person",
-      duration: "40 Days",
-      image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?auto=format&fit=crop&q=80&w=600",
-    },
-    {
-      id: 3,
-      title: "30 Days Non-Shifting Hajj Package",
-      price: "Starts from BDT 6,50,000 /Per Person",
-      duration: "30 Days",
-      image: "https://images.unsplash.com/photo-1580418827493-f2b22c0a76cb?auto=format&fit=crop&q=80&w=600",
-    },
-    {
-      id: 4,
-      title: "14 Days Premium VIP Umrah Package",
-      price: "Starts from BDT 2,10,000 /Per Person",
-      duration: "14 Days",
-      image: "https://images.unsplash.com/photo-1572044161556-9a58498b58cd?auto=format&fit=crop&q=80&w=600",
-    }
-  ];
+  // 2. We don't need the hardcoded array anymore. 
+  // We will just grab the first 4 packages from the JSON file to show on the homepage.
+  const displayPackages = packagesData.slice(0, 4);
 
   return (
     <section className="packages-section">
@@ -44,7 +16,7 @@ const FeaturedPackages = () => {
         </div>
 
         <div className="packages-grid">
-          {packages.map((pkg) => (
+          {displayPackages.map((pkg) => (
             <div className="package-card" key={pkg.id}>
               {/* Card Image */}
               <div className="card-image-wrapper">
@@ -60,6 +32,7 @@ const FeaturedPackages = () => {
                   <span className="duration-badge">{pkg.duration}</span>
                 </div>
                 
+                {/* 3. This now dynamically links to /packages/h1, /packages/u1, etc. */}
                 <Link to={`/packages/${pkg.id}`} className="view-details-btn">
                   View Details
                 </Link>
