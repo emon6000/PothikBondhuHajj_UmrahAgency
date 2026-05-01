@@ -1818,3 +1818,208 @@
 .training-schedule h3 { color: #fbbf24; margin-bottom: 1.5rem; font-size: 1.4rem; }
 .schedule-list { list-style: none; padding: 0; }
 .schedule-list li { margin-bottom: 1rem; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+/* --- User Dashboard Layout --- */
+.dashboard-layout {
+  display: flex;
+  min-height: 80vh;
+  background-color: #f1f5f9; /* Slightly darker gray for the app background */
+}
+
+/* Sidebar */
+.dashboard-sidebar {
+  width: 250px;
+  background-color: #022c22; /* Very dark green */
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .dashboard-layout { flex-direction: column; }
+  .dashboard-sidebar { width: 100%; height: auto; flex-direction: row; align-items: center; justify-content: space-between; padding: 10px 20px;}
+  .sidebar-nav { display: none; /* In a real app, you'd make this a hamburger menu on mobile */ }
+}
+
+.sidebar-brand {
+  padding: 2rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-brand h2 { color: #fbbf24; font-size: 1.5rem; }
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 0;
+  flex: 1;
+}
+
+.nav-item {
+  padding: 1rem 2rem;
+  color: #94a3b8;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  text-align: left;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.nav-item:hover, .nav-item.active {
+  color: white;
+  background-color: rgba(255,255,255,0.05);
+  border-left: 4px solid #fbbf24;
+}
+
+.logout-btn {
+  margin-top: auto; /* Pushes logout to the bottom */
+  color: #ef4444;
+}
+.logout-btn:hover { color: white; background-color: #ef4444; border-left-color: #dc2626; }
+
+/* Main Content Area */
+.dashboard-main {
+  flex: 1;
+  padding: 3rem 5%;
+  max-width: 1200px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.dashboard-header h1 { color: #0f172a; margin-bottom: 0.5rem; }
+.dashboard-header p { color: #64748b; font-size: 1.1rem; }
+
+.package-badge {
+  background: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-weight: 600;
+}
+.package-badge span { color: #064e3b; font-weight: 800; margin-left: 5px; }
+
+/* Action Alert Box */
+.action-alert {
+  background: #fef3c7; /* Warning Gold background */
+  border: 1px solid #fde68a;
+  padding: 2rem;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+  box-shadow: 0 4px 15px rgba(217, 119, 6, 0.1);
+}
+
+@media (max-width: 600px) {
+  .action-alert { flex-direction: column; text-align: center; gap: 1.5rem; }
+}
+
+.alert-content h3 { color: #b45309; margin-bottom: 0.5rem; }
+.alert-content p { color: #92400e; }
+
+.alert-btn {
+  background: #b45309;
+  color: white;
+  padding: 12px 25px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.alert-btn:hover { background: #92400e; }
+
+/* Progress Stepper */
+.progress-section {
+  background: white;
+  padding: 3rem;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.03);
+}
+
+.progress-section h2 { color: #0f172a; margin-bottom: 2.5rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; }
+
+.stepper-container { display: flex; flex-direction: column; gap: 2rem; }
+
+.step {
+  display: flex;
+  gap: 1.5rem;
+  position: relative;
+}
+
+/* The vertical connecting line */
+.step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 40px;
+  left: 20px; /* Centers the line under the 40px icon */
+  width: 2px;
+  height: calc(100% - 10px);
+  background-color: #e2e8f0;
+  z-index: 0;
+}
+
+.step-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  z-index: 1; /* Keeps icon above the line */
+}
+
+/* Step States */
+.step.completed .step-icon { background: #064e3b; color: white; }
+.step.completed::after { background-color: #064e3b; } /* Colors the line below it */
+.step.completed h4 { color: #064e3b; text-decoration: line-through; opacity: 0.7; }
+
+.step.active .step-icon { background: #fbbf24; color: #064e3b; box-shadow: 0 0 0 5px rgba(251, 191, 36, 0.2); }
+.step.active h4 { color: #0f172a; font-size: 1.2rem; }
+.step.active p { color: #b45309; font-weight: 600; }
+
+.step.pending .step-icon { background: #f1f5f9; color: #94a3b8; border: 2px solid #e2e8f0; }
+.step.pending h4, .step.pending p { color: #94a3b8; }
+
+.step-content { padding-top: 8px; }
+.step-content h4 { margin-bottom: 5px; }
+.step-content p { font-size: 0.95rem; line-height: 1.5; }
+
+.spin-anim { animation: spin 2s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+
+.reg-page-container { max-width: 800px; margin: 3rem auto; padding: 2rem; background: #fff; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+
+.journey-toggle { display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; }
+.journey-toggle button { padding: 10px 30px; border: 2px solid #064e3b; background: white; color: #064e3b; font-weight: 700; cursor: pointer; border-radius: 5px; }
+.journey-toggle button.active { background: #064e3b; color: white; }
+
+.pkg-selection-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+.pkg-option { padding: 1.5rem; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+.pkg-option:hover { border-color: #064e3b; }
+.pkg-option.selected { border-color: #064e3b; background: #f0fdf4; }
+
+.reg-form { display: flex; flex-direction: column; gap: 1.5rem; border-top: 2px solid #f1f5f9; padding-top: 2rem; }
+.input-row { display: flex; gap: 1rem; }
+.input-group { flex: 1; display: flex; flex-direction: column; }
+.input-group label { display: flex; align-items: center; gap: 5px; font-weight: 600; margin-bottom: 5px; }
+.input-group input { padding: 12px; border: 1px solid #cbd5e1; border-radius: 5px; }
+.submit-btn { background: #064e3b; color: white; padding: 15px; border: none; font-size: 1.1rem; font-weight: 700; cursor: pointer; border-radius: 5px; }

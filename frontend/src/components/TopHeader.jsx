@@ -4,7 +4,6 @@ import { FaEnvelope, FaPhoneAlt, FaFacebookF, FaTwitter, FaInstagram } from 'rea
 const TopHeader = () => {
   return (
     <div className="top-header">
-      {/* Left Side: Contact Info */}
       <div className="contact-info">
         <div className="contact-item">
           <FaEnvelope className="icon" />
@@ -15,10 +14,8 @@ const TopHeader = () => {
           <span>+880 1234 567 890</span>
         </div>
       </div>
-
-      {/* Right Side: Social Media Links */}
       <div className="social-links">
-        <p>Connect Us :</p>
+        <p>Connect:</p>
         <a href="#" aria-label="Facebook"><FaFacebookF /></a>
         <a href="#" aria-label="Twitter"><FaTwitter /></a>
         <a href="#" aria-label="Instagram"><FaInstagram /></a>

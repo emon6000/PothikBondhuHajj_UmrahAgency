@@ -44,7 +44,7 @@ const PackageDetails = () => {
             <span className="price-suffix">/ Per Person</span>
           </div>
           
-          <Link to="/hajj/pre-registration" className="book-now-large-btn">
+          <Link to="/register" className="book-now-large-btn">
             Proceed to Pre-Registration
           </Link>
           <p className="guarantee-text"><FaCheckCircle /> Authorized Hajj & Umrah Agency</p>

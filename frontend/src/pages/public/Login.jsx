@@ -9,9 +9,7 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Later, we will connect this to Supabase
-    console.log("Logging in with:", credentials);
-    // navigate('/dashboard'); 
+    navigate('/dashboard'); 
   };
 
   return (
@@ -19,7 +17,6 @@ const Login = () => {
       <div className="auth-container">
         <div className="auth-card">
           
-          {/* Left Side: Visual/Branding (Hidden on mobile) */}
           <div className="auth-image-side">
             <div className="auth-image-overlay">
               <h2>Welcome Back</h2>
@@ -27,7 +24,6 @@ const Login = () => {
             </div>
           </div>
 
-          {/* Right Side: Login Form */}
           <div className="auth-form-side">
             <div className="auth-header">
               <h2>Log In to Your Portal</h2>
@@ -39,7 +35,7 @@ const Login = () => {
                 <label>Phone Number or Email</label>
                 <input
                   type="text"
-                  placeholder="e.g. +8801700000000 or email"
+                  placeholder="e.g. +880 or email"
                   required
                   value={credentials.identifier}
                   onChange={(e) => setCredentials({...credentials, identifier: e.target.value})}

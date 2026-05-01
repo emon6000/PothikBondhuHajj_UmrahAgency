@@ -2,15 +2,12 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import TopHeader from './components/TopHeader';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-
-// Import your page sections
 import Hero from './components/Hero';
 import AboutPreview from './components/AboutPreview';
 import FeaturedPackages from './components/FeaturedPackages';
 import Testimonials from './components/Testimonials';
 import './styles/AppLayout.css';
 import ScrollToTop from './components/ScrollToTop';
-
 import HajjPage from './pages/public/HajjPage';
 import UmrahPage from './pages/public/UmrahPage';
 import PreRegistration from './pages/public/PreRegistration';
@@ -22,7 +19,9 @@ import Contact from './pages/public/Contact';
 import Terms from './pages/public/Terms';
 import Privacy from './pages/public/Privacy';
 import HajjTraining from './pages/public/HajjTraining';
-// 1. Build the actual Home page component by combining the sections here!
+import UserDashboard from './pages/private/UserDashboard';
+import Registration from './pages/public/Registration.jsx';
+
 const Home = () => {
   return (
     <>
@@ -40,17 +39,13 @@ import PackageDetails from './pages/public/PackageDetails';
 function App() {
   return (
     <BrowserRouter>
-      {/* Persistent Top Navigation */}
       <ScrollToTop />
       <TopHeader />
       <Navbar />
 
-      {/* Dynamic Content Area */}
       <main className="main-content" style={{ minHeight: '60vh' }}>
         <Routes>
           <Route path="/" element={<Home />} />
-
-          {/* New Routes we just created */}
           <Route path="/hajj" element={<HajjPage />} />
           <Route path="/umrah" element={<UmrahPage />} />
           <Route path="/hajj/pre-registration" element={<PreRegistration />} />
@@ -64,10 +59,10 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/training" element={<HajjTraining />} />
+          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/register" element={<Registration />} />
         </Routes>
       </main>
-
-      {/* Persistent Footer */}
       <Footer />
     </BrowserRouter>
   );

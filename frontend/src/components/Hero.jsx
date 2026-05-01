@@ -7,7 +7,6 @@ import L from 'leaflet';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-// 1. Import your AI generated images here
 import heroBg from '../assets/hero-background.jpg';
 import trustedFaces from '../assets/trusted-faces.png';
 
@@ -24,15 +23,12 @@ const Hero = () => {
   ];
 
   return (
-    // 2. Apply the background image using inline styles to ensure it loads
     <section className="hero-section" style={{ backgroundImage: `url(${heroBg})` }}>
       <div className="hero-overlay">
         
-        {/* We add a wrapper to contain the width */}
         <div className="hero-content-wrapper">
           <div className="hero-container">
             
-            {/* Left Side: Content */}
             <div className="hero-left">
               <h1 className="hero-title">Best Hajj and Umrah Agency in Bangladesh</h1>
               <p className="hero-description">
@@ -40,7 +36,6 @@ const Hero = () => {
                 support and expert guidance to ensure your pilgrimage is peaceful and spiritual.
               </p>
               
-              {/* 3. Add the Trusted Faces Image here */}
               <div className="trusted-faces-container">
                 <img src={trustedFaces} alt="Our Experts" className="trusted-faces-img" />
                 <span className="trusted-text">Guided by trusted scholars & experts</span>
@@ -59,7 +54,7 @@ const Hero = () => {
 
             {/* Right Side: Map */}
             {/* Right Side: Map */}
-            <div className="hero-right" onClick={() => navigate('/contacts')}>
+            <div className="hero-right" onClick={() => navigate('/contact')}>
               <div className="map-wrapper">
                 
                 {/* ADD THIS NEW LINE HERE */}
