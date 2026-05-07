@@ -7,9 +7,43 @@ const Login = () => {
   const [credentials, setCredentials] = useState({ identifier: '', password: '' });
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    navigate('/dashboard'); 
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        // Use credentials.identifier (which holds the email/phone) and credentials.password
+        body: JSON.stringify({ 
+          email: credentials.identifier, 
+          password: credentials.password 
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Save the token and user info to localStorage
+        localStorage.setItem('pothik_token', data.token);
+        localStorage.setItem('pothik_user', JSON.stringify(data.user));
+
+        alert(`Welcome back, ${data.user.name}!`);
+        
+        // Redirect based on role
+        if (data.user.role === 'ADMIN') {
+           navigate('/admin-dashboard'); 
+        } else {
+           navigate('/client-dashboard');
+        }
+
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Could not connect to the server.");
+    }
   };
 
   return (
@@ -30,7 +64,7 @@ const Login = () => {
               <p>Enter your phone number or email and password.</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="auth-form">
+            <form onSubmit={handleLoginSubmit} className="auth-form">
               <div className="form-group">
                 <label>Phone Number or Email</label>
                 <input

@@ -21,6 +21,9 @@ import Privacy from './pages/public/Privacy';
 import HajjTraining from './pages/public/HajjTraining';
 import UserDashboard from './pages/private/UserDashboard';
 import Registration from './pages/public/Registration.jsx';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ProtectedRoute from './components/ProtectedRoute'; // Adjust path if needed
+import ClientDashboard from './pages/client/ClientDashboard'; // Adjust path based on where you saved it
 
 const Home = () => {
   return (
@@ -61,6 +64,22 @@ function App() {
           <Route path="/training" element={<HajjTraining />} />
           <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="/register" element={<Registration />} />
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRoute allowedRole="ADMIN">
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/client-dashboard"
+            element={
+              <ProtectedRoute allowedRole="CLIENT">
+                <ClientDashboard />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </main>
       <Footer />

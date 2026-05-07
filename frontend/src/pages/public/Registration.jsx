@@ -1,28 +1,46 @@
 import React, { useState } from 'react';
-import packagesData from '../../data/packages.json'; // Importing our package "database"
+import packagesData from '../../data/packages.json'; 
 import { FaUser, FaEnvelope, FaPhone, FaIdCard, FaPassport, FaLock } from 'react-icons/fa';
 
 const Registration = () => {
-  const [journeyType, setJourneyType] = useState('hajj'); // 'hajj' or 'umrah'
+  const [journeyType, setJourneyType] = useState('hajj'); 
   const [selectedPkg, setSelectedPkg] = useState(null);
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', nid: '', passport: '', password: ''
   });
 
-  // Filter packages based on the toggle
   const filteredPackages = packagesData.filter(p => p.type === journeyType);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedPkg) return alert("Please select a package first!");
     
-    // This is where we will eventually send data to the backend
-    console.log("Submitting to Database:", { ...formData, package: selectedPkg });
-    alert(`Registration Successful for ${formData.name}! (Data logged to console)`);
+    try {
+      const response = await fetch('http://localhost:5000/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          ...formData, 
+          packageId: selectedPkg.id 
+        }) 
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert(`Success! ${data.message}`);
+        // Optional: window.location.href = '/login';
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Connection error:", error);
+      alert("Could not connect to the server.");
+    }
   };
 
   return (
@@ -31,8 +49,18 @@ const Registration = () => {
 
       {/* 1. Journey Toggle */}
       <div className="journey-toggle">
-        <button className={journeyType === 'hajj' ? 'active' : ''} onClick={() => {setJourneyType('hajj'); setSelectedPkg(null);}}>Hajj Journey</button>
-        <button className={journeyType === 'umrah' ? 'active' : ''} onClick={() => {setJourneyType('umrah'); setSelectedPkg(null);}}>Umrah Journey</button>
+        <button 
+          className={journeyType === 'hajj' ? 'active' : ''} 
+          onClick={() => {setJourneyType('hajj'); setSelectedPkg(null);}}
+        >
+          Hajj Journey
+        </button>
+        <button 
+          className={journeyType === 'umrah' ? 'active' : ''} 
+          onClick={() => {setJourneyType('umrah'); setSelectedPkg(null);}}
+        >
+          Umrah Journey
+        </button>
       </div>
 
       {/* 2. Package Selection Grid */}

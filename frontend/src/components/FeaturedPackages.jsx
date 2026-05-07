@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom';
 import packagesData from '../data/packages.json'; // 1. Import the JSON database!
 
 const FeaturedPackages = () => {
-  // 2. We don't need the hardcoded array anymore. 
-  // We will just grab the first 4 packages from the JSON file to show on the homepage.
   const displayPackages = packagesData.slice(0, 4);
 
   return (
