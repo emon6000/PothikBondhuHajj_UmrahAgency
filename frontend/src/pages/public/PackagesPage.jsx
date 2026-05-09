@@ -1,14 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { FaClock, FaMoneyBillWave, FaCalendarAlt } from 'react-icons/fa';
-import packagesData from '../../data/packages.json'; // Importing your mock database!
 
 const PackagesPage = () => {
   const location = useLocation();
   const [activeFilter, setActiveFilter] = useState('all');
+  
+  // 1. The new states to hold database data
+  const [allPackages, setAllPackages] = useState([]);
   const [filteredPackages, setFilteredPackages] = useState([]);
 
-  // This "magic" effect reads the URL when the page loads
+  // 2. Fetch live data from PostgreSQL when the component mounts
+  useEffect(() => {
+    const fetchLivePackages = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/packages');
+        const data = await response.json();
+        setAllPackages(data);
+      } catch (error) {
+        console.error("Failed to fetch database packages:", error);
+      }
+    };
+    fetchLivePackages();
+  }, []);
+
+  // 3. Read URL params (e.g., ?type=hajj) for the initial filter
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const type = params.get('type');
@@ -20,14 +36,14 @@ const PackagesPage = () => {
     }
   }, [location]);
 
-  // This filters the packages whenever the activeFilter changes
+  // 4. Update the filtered list whenever the activeFilter OR the database data changes
   useEffect(() => {
     if (activeFilter === 'all') {
-      setFilteredPackages(packagesData);
+      setFilteredPackages(allPackages);
     } else {
-      setFilteredPackages(packagesData.filter((pkg) => pkg.type === activeFilter));
+      setFilteredPackages(allPackages.filter((pkg) => pkg.type === activeFilter));
     }
-  }, [activeFilter]);
+  }, [activeFilter, allPackages]);
 
   return (
     <div className="packages-explorer-page">
@@ -73,7 +89,8 @@ const PackagesPage = () => {
           filteredPackages.map((pkg) => (
             <div className="explorer-card fade-in" key={pkg.id}>
               <div className="card-image-box">
-                <img src={pkg.image} alt={pkg.title} />
+                {/* Fallback image used in case the database doesn't have an image column yet */}
+                <img src={pkg.image || "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800"} alt={pkg.title} />
                 <span className={`pkg-type-badge ${pkg.type}`}>{pkg.type.toUpperCase()}</span>
               </div>
 
@@ -86,7 +103,8 @@ const PackagesPage = () => {
                   </p>
                   <p>
                     <FaMoneyBillWave className="detail-icon" /> <strong>Price:</strong>{' '}
-                    <span className="price-text">{pkg.price}</span>
+                    {/* Database uses 'cost' instead of 'price', formatted nicely */}
+                    <span className="price-text">{pkg.cost ? pkg.cost.toLocaleString() : '0'} BDT</span>
                   </p>
                   <p>
                     <FaCalendarAlt className="detail-icon" /> <strong>Availability:</strong> Open
@@ -95,7 +113,6 @@ const PackagesPage = () => {
                 </div>
 
                 <div className="card-actions">
-                  {/* Changed from <button> to <Link> to connect to the Details page */}
                   <Link to={`/packages/${pkg.id}`} className="secondary-btn">
                     View Itinerary
                   </Link>
@@ -112,7 +129,7 @@ const PackagesPage = () => {
           ))
         ) : (
           <div className="no-packages">
-            <h3>No packages found for this category.</h3>
+            <h3>{allPackages.length === 0 ? "Loading live packages..." : "No packages found for this category."}</h3>
           </div>
         )}
       </div>

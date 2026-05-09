@@ -1,16 +1,42 @@
 [
   {
-    "id": "11111111-1111-1111-1111-111111111111",
-    "title": "Premium Hajj 2026",
+    "id": "a1111111-1111-1111-1111-111111111111",
+    "title": "Hajj Standard Pre-Registration",
     "type": "hajj",
     "duration": "40 Days",
-    "price": "650,000 BDT"
+    "price": "500,000 BDT",
+    "features": ["Economy Flights", "Standard Accommodation", "Shared Transport"]
   },
   {
-    "id": "22222222-2222-2222-2222-222222222222",
-    "title": "Standard Umrah 2026",
+    "id": "a2222222-2222-2222-2222-222222222222",
+    "title": "Hajj Premium Pre-Registration",
+    "type": "hajj",
+    "duration": "40 Days",
+    "price": "650,000 BDT",
+    "features": ["Direct Flights", "4-Star Accommodation", "Guided Ziyarat"]
+  },
+  {
+    "id": "a3333333-3333-3333-3333-333333333333",
+    "title": "Hajj VIP Pre-Registration",
+    "type": "hajj",
+    "duration": "30 Days",
+    "price": "850,000 BDT",
+    "features": ["Business Class Flights", "5-Star Hotels near Haram", "Private Transport"]
+  },
+  {
+    "id": "b1111111-1111-1111-1111-111111111111",
+    "title": "Umrah Standard",
     "type": "umrah",
-    "duration": "15 Days",
-    "price": "180,000 BDT"
+    "duration": "14 Days",
+    "price": "150,000 BDT",
+    "features": ["Economy Flights", "Standard Hotels", "Visa Processing included"]
+  },
+  {
+    "id": "b2222222-2222-2222-2222-222222222222",
+    "title": "Umrah VIP",
+    "type": "umrah",
+    "duration": "10 Days",
+    "price": "250,000 BDT",
+    "features": ["Premium Flights", "5-Star Hotels", "Private Car Service"]
   }
 ]

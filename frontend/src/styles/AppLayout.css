@@ -60,11 +60,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 5%;
+  padding: 10px 40px;
   background-color: #ffffff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); /* Soft shadow for depth */
   position: relative;/* sticky */
-  
+  min-height: 70px;
   top: 0;
   z-index: 1000;
 }
@@ -78,7 +78,7 @@
 }
 
 .logo-img {
-  height: 100px; /* Adjust this based on your image size */
+  height: 50px; /* Adjust this based on your image size */
   width: auto;
   object-fit: contain;
 }

@@ -1,30 +1,36 @@
+// --- ALL IMPORTS MUST BE AT THE TOP ---
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import TopHeader from './components/TopHeader';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
+import './styles/AppLayout.css';
+
+// Layouts
+import PublicLayout from './components/PublicLayout';
+import AdminLayout from './components/AdminLayout';
+
+// Public Pages
 import Hero from './components/Hero';
 import AboutPreview from './components/AboutPreview';
 import FeaturedPackages from './components/FeaturedPackages';
 import Testimonials from './components/Testimonials';
-import './styles/AppLayout.css';
-import ScrollToTop from './components/ScrollToTop';
-import HajjPage from './pages/public/HajjPage';
-import UmrahPage from './pages/public/UmrahPage';
 import PreRegistration from './pages/public/PreRegistration';
+import Registration from './pages/public/Registration'; // <-- Added back here!
 import VisaRequirements from './pages/public/VisaRequirements';
 import PackagesPage from './pages/public/PackagesPage';
+import PackageDetails from './pages/public/PackageDetails';
 import AboutUs from './pages/public/AboutUs';
 import Agents from './pages/public/Agents';
 import Contact from './pages/public/Contact';
 import Terms from './pages/public/Terms';
 import Privacy from './pages/public/Privacy';
 import HajjTraining from './pages/public/HajjTraining';
-import UserDashboard from './pages/private/UserDashboard';
-import Registration from './pages/public/Registration.jsx';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import ProtectedRoute from './components/ProtectedRoute'; // Adjust path if needed
-import ClientDashboard from './pages/client/ClientDashboard'; // Adjust path based on where you saved it
+import Track from './pages/public/Track.jsx';
+import Login from './pages/public/Login';
 
+// Admin & Protected Routes
+import AdminDashboard from './pages/admin/AdminDashboard';
+import ProtectedRoute from './components/ProtectedRoute'; 
+
+// --- HOME COMPONENT ---
 const Home = () => {
   return (
     <>
@@ -36,21 +42,22 @@ const Home = () => {
   );
 };
 
-import Login from './pages/public/Login';
-import PackageDetails from './pages/public/PackageDetails';
-
+// --- MAIN APP COMPONENT ---
 function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <TopHeader />
-      <Navbar />
-
-      <main className="main-content" style={{ minHeight: '60vh' }}>
-        <Routes>
+      
+      <Routes>
+        
+        {/* =========================================
+            ENVIRONMENT 1: THE PUBLIC WEBSITE 
+            (Wrapped in Navbar & Footer)
+        ========================================= */}
+        <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
-          <Route path="/hajj" element={<HajjPage />} />
-          <Route path="/umrah" element={<UmrahPage />} />
+          <Route path="/track" element={<Track />} />
+          <Route path="/register" element={<Registration />} /> {/* <-- Route fixed here! */}
           <Route path="/hajj/pre-registration" element={<PreRegistration />} />
           <Route path="/visa-requirements" element={<VisaRequirements />} />
           <Route path="/packages" element={<PackagesPage />} />
@@ -58,12 +65,17 @@ function App() {
           <Route path="/about" element={<AboutUs />} />
           <Route path="/agents" element={<Agents />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login />} /> 
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/training" element={<HajjTraining />} />
-          <Route path="/dashboard" element={<UserDashboard />} />
-          <Route path="/register" element={<Registration />} />
+        </Route>
+
+        {/* =========================================
+            ENVIRONMENT 2: THE SECURE ADMIN PORTAL 
+            (Completely isolated, no heavy public UI)
+        ========================================= */}
+        <Route element={<AdminLayout />}>
           <Route
             path="/admin-dashboard"
             element={
@@ -72,17 +84,9 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/client-dashboard"
-            element={
-              <ProtectedRoute allowedRole="CLIENT">
-                <ClientDashboard />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </main>
-      <Footer />
+        </Route>
+
+      </Routes>
     </BrowserRouter>
   );
 }

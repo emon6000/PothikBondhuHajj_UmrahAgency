@@ -1,21 +1,10 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FaChevronDown } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { FaChevronDown, FaSearchLocation } from 'react-icons/fa'; // Added a nice icon for tracking
 import logo from '../assets/logo.png';
 
 const Navbar = () => {
-  const navigate = useNavigate();
-
-  // 1. Check if the user is currently logged in
-  const userStr = localStorage.getItem('pothik_user');
-  const user = userStr ? JSON.parse(userStr) : null;
-
-  // 2. Handle the logout process safely
-  const handleLogout = () => {
-    localStorage.removeItem('pothik_token');
-    localStorage.removeItem('pothik_user');
-    navigate('/login');
-  };
+  // No more authentication logic needed here since the public site is passwordless for clients!
 
   return (
     <nav className="main-navbar">
@@ -61,31 +50,22 @@ const Navbar = () => {
       </ul>
 
       <div className="navbar-actions">
-        {/* 3. Dynamically render buttons based on login status */}
-        {user ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            {/* Direct them to the correct dashboard based on their role */}
-            <Link 
-              to={user.role === 'ADMIN' ? '/admin-dashboard' : '/client-dashboard'} 
-              className="login-btn"
-              style={{ background: 'transparent', color: '#064e3b', border: '2px solid #064e3b' }}
-            >
-              Dashboard
-            </Link>
-            
-            <button 
-              onClick={handleLogout} 
-              className="login-btn"
-              style={{ cursor: 'pointer', border: 'none' }}
-            >
-              Log Out
-            </button>
-          </div>
-        ) : (
-          <Link to="/login" className="login-btn">
-            Log In
-          </Link>
-        )}
+        {/* Replaced Login/Logout with a clean Tracking button */}
+        <Link 
+          to="/track" 
+          className="login-btn" 
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px', 
+            background: '#064e3b', 
+            color: 'white',
+            border: 'none',
+            cursor: 'pointer'
+          }}
+        >
+          <FaSearchLocation /> Track Status
+        </Link>
       </div>
     </nav>
   );
