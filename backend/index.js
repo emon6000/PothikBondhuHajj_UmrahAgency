@@ -178,6 +178,50 @@ app.get('/api/my-booking/:userId', async (req, res) => {
   }
 });
 
+// --- ADMIN: GET ALL BOOKINGS ---
+// --- ADMIN: GET ALL BOOKINGS (Upgraded with Financials) ---
+app.get('/api/admin/bookings', async (req, res) => {
+  try {
+    const bookings = await pool.query(`
+      SELECT b.id, u.name as client_name, u.phone, p.title as package_name, b.status, b.amount_paid, b.total_cost 
+      FROM bookings b
+      JOIN users u ON b.user_id = u.id
+      JOIN packages p ON b.package_id = p.id
+      ORDER BY b.created_at DESC
+    `);
+    res.json(bookings.rows);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: 'Server error fetching bookings.' });
+  }
+});
+
+// --- ADMIN: LOG PAYMENT ---
+app.put('/api/admin/update-payment/:id', async (req, res) => {
+  const { id } = req.params;
+  const { amount_paid } = req.body;
+  try {
+    await pool.query('UPDATE bookings SET amount_paid = $1 WHERE id = $2', [amount_paid, id]);
+    res.json({ message: 'Payment logged successfully!' });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: 'Server error updating payment.' });
+  }
+});
+
+// --- ADMIN: UPDATE BOOKING STATUS ---
+app.put('/api/admin/update-booking-status/:id', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  try {
+    await pool.query('UPDATE bookings SET status = $1 WHERE id = $2', [status, id]);
+    res.json({ message: 'Status updated successfully!' });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: 'Server error updating status.' });
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

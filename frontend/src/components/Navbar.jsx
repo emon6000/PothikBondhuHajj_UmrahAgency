@@ -1,9 +1,22 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaChevronDown } from 'react-icons/fa';
 import logo from '../assets/logo.png';
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
+  // 1. Check if the user is currently logged in
+  const userStr = localStorage.getItem('pothik_user');
+  const user = userStr ? JSON.parse(userStr) : null;
+
+  // 2. Handle the logout process safely
+  const handleLogout = () => {
+    localStorage.removeItem('pothik_token');
+    localStorage.removeItem('pothik_user');
+    navigate('/login');
+  };
+
   return (
     <nav className="main-navbar">
       <div className="navbar-brand">
@@ -48,9 +61,31 @@ const Navbar = () => {
       </ul>
 
       <div className="navbar-actions">
-        <Link to="/login" className="login-btn">
-          Log In
-        </Link>
+        {/* 3. Dynamically render buttons based on login status */}
+        {user ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            {/* Direct them to the correct dashboard based on their role */}
+            <Link 
+              to={user.role === 'ADMIN' ? '/admin-dashboard' : '/client-dashboard'} 
+              className="login-btn"
+              style={{ background: 'transparent', color: '#064e3b', border: '2px solid #064e3b' }}
+            >
+              Dashboard
+            </Link>
+            
+            <button 
+              onClick={handleLogout} 
+              className="login-btn"
+              style={{ cursor: 'pointer', border: 'none' }}
+            >
+              Log Out
+            </button>
+          </div>
+        ) : (
+          <Link to="/login" className="login-btn">
+            Log In
+          </Link>
+        )}
       </div>
     </nav>
   );
