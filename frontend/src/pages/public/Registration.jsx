@@ -10,8 +10,9 @@ const Registration = () => {
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', nid: '', passport: ''
   });
+  
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-  // --- Session Check ---
   const [user, setUser] = useState(null);
   useEffect(() => {
     const userStr = localStorage.getItem('pothik_user');
@@ -30,7 +31,7 @@ const Registration = () => {
     
     try {
       if (user) {
-        const response = await fetch('http://localhost:5000/api/create-booking', {
+        const response = await fetch(`${API_URL}/api/create-booking`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: user.id, packageId: selectedPkg.id }) 
@@ -42,7 +43,7 @@ const Registration = () => {
         } else alert(`Error: ${data.error}`);
         
       } else {
-        const response = await fetch('http://localhost:5000/api/register', {
+        const response = await fetch(`${API_URL}/api/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -70,7 +71,6 @@ const Registration = () => {
     <div className="reg-page-container">
       <h2>Pilgrim Registration</h2>
 
-      {/* 1. Journey Toggle */}
       <div className="journey-toggle">
         <button 
           type="button"

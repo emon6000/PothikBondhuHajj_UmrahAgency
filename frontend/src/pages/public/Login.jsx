@@ -1,4 +1,3 @@
-// src/pages/public/Login.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaPhoneAlt, FaEnvelope } from 'react-icons/fa';
@@ -6,18 +5,19 @@ import { FaPhoneAlt, FaEnvelope } from 'react-icons/fa';
 const Login = () => {
   const [credentials, setCredentials] = useState({ identifier: '', password: '' });
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     
     try {
-      const response = await fetch('http://localhost:5000/api/login', {
+      const response = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
        body: JSON.stringify({ 
-          email: credentials.identifier, 
-          password: credentials.password 
-        })
+         email: credentials.identifier, 
+         password: credentials.password 
+       })
       });
 
       const data = await response.json();
@@ -97,7 +97,6 @@ const Login = () => {
                 <span><FaEnvelope className="small-icon" /> info@pothikbondhu.com</span>
               </div>
             </div>
-
             
           </div>
         </div>

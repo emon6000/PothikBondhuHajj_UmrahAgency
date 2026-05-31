@@ -7,28 +7,29 @@ const PreRegistration = () => {
   const formRef = useRef(null);
 
   const [hajjPackages, setHajjPackages] = useState([]);
+  const [user, setUser] = useState(null);
+  const [selectedPkgId, setSelectedPkgId] = useState('');
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', nid: '', passport: '' });
+
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
   
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/packages');
+        const response = await fetch(`${API_URL}/api/packages`);
         const data = await response.json();
         setHajjPackages(data.filter(pkg => pkg.type === 'hajj'));
       } catch (err) {
-        console.error("Failed to load packages", err);
+        console.error(err);
       }
     };
     fetchPackages();
-  }, []);
+  }, [API_URL]);
 
-  const [user, setUser] = useState(null);
   useEffect(() => {
     const userStr = localStorage.getItem('pothik_user');
     if (userStr) setUser(JSON.parse(userStr));
   }, []);
-
-  const [selectedPkgId, setSelectedPkgId] = useState('');
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', nid: '', passport: '' });
 
   const handleSelectPackage = (pkgId) => {
     setSelectedPkgId(pkgId);
@@ -45,7 +46,7 @@ const PreRegistration = () => {
 
     try {
       if (user) {
-        const response = await fetch('http://localhost:5000/api/create-booking', {
+        const response = await fetch(`${API_URL}/api/create-booking`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: user.id, packageId: selectedPkgId }) 
@@ -57,7 +58,7 @@ const PreRegistration = () => {
         } else alert(`Error: ${data.error}`);
         
       } else {
-        const response = await fetch('http://localhost:5000/api/register', {
+        const response = await fetch(`${API_URL}/api/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...formData, packageId: selectedPkgId }) 
@@ -93,7 +94,6 @@ const PreRegistration = () => {
                 <p><strong>Duration:</strong> {pkg.duration}</p>
                 <p className="reg-fee"><strong>Cost:</strong> <br/>{pkg.cost.toLocaleString()} BDT</p>
                 
-                {/* Dynamically split the comma-separated features into bullet points */}
                 <ul style={{ textAlign: 'left', fontSize: '0.85em', marginTop: '10px', paddingLeft: '20px', color: '#555' }}>
                   {pkg.features ? pkg.features.split(',').map((feature, index) => (
                     <li key={index}>{feature.trim()}</li>

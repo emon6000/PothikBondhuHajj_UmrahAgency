@@ -8,12 +8,14 @@ const PackageDetails = () => {
   const [pkg, setPkg] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // The dynamic API URL logic is placed here
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
   useEffect(() => {
     const fetchPackageDetails = async () => {
       try {
-        // Fetch all packages and find the specific one
-        // (Or you can create a specific backend route for /api/packages/:id)
-        const response = await fetch('http://localhost:5000/api/packages');
+        // Fetch is updated to use the dynamic URL
+        const response = await fetch(`${API_URL}/api/packages`);
         const data = await response.json();
         const foundPackage = data.find(p => p.id === id);
         setPkg(foundPackage);
@@ -24,7 +26,7 @@ const PackageDetails = () => {
       }
     };
     fetchPackageDetails();
-  }, [id]);
+  }, [id, API_URL]);
 
   if (loading) {
     return <div style={{ padding: '100px', textAlign: 'center' }}>Loading package details...</div>;
@@ -62,7 +64,6 @@ const PackageDetails = () => {
           <p className="details-duration">Total Duration: <strong>{pkg.duration}</strong></p>
           <div className="details-price-box">
             <span className="price-label">Starting from</span>
-            {/* Updated from .price to .cost with formatting */}
             <h2 className="price-amount">{pkg.cost ? pkg.cost.toLocaleString() : '0'} BDT</h2>
             <span className="price-suffix">/ Per Person</span>
           </div>
