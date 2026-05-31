@@ -18,7 +18,6 @@ const Footer = () => {
   return (
     <footer className="main-footer">
       <div className="footer-container">
-        {/* Column 1: Brand & Contact Info */}
         <div className="footer-col brand-col">
           <div className="footer-logo-wrapper">
             <img src={logo} alt="Pothik Bondhu" className="footer-logo" />
@@ -42,7 +41,6 @@ const Footer = () => {
             <span>info@pothikbondhu.com</span>
           </div>
 
-          {/* Circular Social Icons */}
           <div className="social-circles">
             <a href="#">
               <FaFacebookF />
@@ -65,7 +63,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Column 2: Services */}
         <div className="footer-col links-col">
           <h3 className="footer-heading">SERVICES</h3>
           <ul>
@@ -90,7 +87,6 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Column 3: Important Links */}
         <div className="footer-col links-col">
           <h3 className="footer-heading">IMPORTANT LINKS</h3>
           <ul>
@@ -136,14 +132,11 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Column 4: Offices Cards */}
         <div className="footer-col offices-col">
           <h3 className="footer-heading">OUR OFFICES</h3>
 
-          {/* Card 1 */}
           <div className="office-card">
             <div className="office-card-header">
-              {/* Using an emoji for the flag just like the design's icon */}
               <span className="flag-icon">🇸🇦</span>
               <h4>Saudi Arabia</h4>
             </div>
@@ -160,7 +153,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Card 2 */}
           <div className="office-card">
             <div className="office-card-header">
               <span className="flag-icon">🇧🇩</span>
@@ -178,7 +170,6 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Bottom Copyright Bar */}
       <div className="footer-bottom">
         <p>© 2026 Pothik Bondhu. All rights reserved.</p>
       </div>

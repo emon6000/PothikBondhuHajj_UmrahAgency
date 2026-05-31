@@ -6,7 +6,6 @@ const PrayerTimesBar = () => {
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // 1. Fetch the API Data
   useEffect(() => {
     const fetchPrayerTimes = async () => {
       try {
@@ -22,20 +21,16 @@ const PrayerTimesBar = () => {
     fetchPrayerTimes();
   }, []);
 
-  // 2. Start the Live Clock
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000); // Updates every 1 second
-    return () => clearInterval(timer); // Cleanup when component unmounts
+    }, 1000);
+    return () => clearInterval(timer); 
   }, []);
 
   if (loading) return null;
   if (!timings) return null;
 
-  // --- LOGIC HELPER FUNCTIONS ---
-
-  // Convert API 24hr time to AM/PM for display
   const formatTime = (time24) => {
     if (!time24) return '';
     const [hourString, minute] = time24.split(':');
@@ -45,27 +40,22 @@ const PrayerTimesBar = () => {
     return `${hour}:${minute} ${ampm}`;
   };
 
-  // Convert Live Date into "HH:MM" 24hr string to match API format
   const currentHourStr = currentTime.getHours().toString().padStart(2, '0');
   const currentMinStr = currentTime.getMinutes().toString().padStart(2, '0');
   const timeNowStr = `${currentHourStr}:${currentMinStr}`;
 
-  // Determine which waqt is active right now
   const determineActiveWaqt = () => {
     if (timeNowStr >= timings.Fajr && timeNowStr < timings.Sunrise) return 'Fajr';
     if (timeNowStr >= timings.Dhuhr && timeNowStr < timings.Asr) return 'Dhuhr';
     if (timeNowStr >= timings.Asr && timeNowStr < timings.Sunset) return 'Asr';
     if (timeNowStr >= timings.Maghrib && timeNowStr < timings.Isha) return 'Maghrib';
-    // Isha goes through midnight until Fajr
     if (timeNowStr >= timings.Isha || timeNowStr < timings.Fajr) return 'Isha';
     
-    // If it's outside active prayer times (e.g., between Sunrise and Dhuhr)
     return 'None'; 
   };
 
   const activeWaqt = determineActiveWaqt();
 
-  // The structured schedule
   const schedule = [
     { name: 'Fajr', start: timings.Fajr, end: timings.Sunrise },
     { name: 'Dhuhr', start: timings.Dhuhr, end: timings.Asr },
@@ -81,7 +71,7 @@ const PrayerTimesBar = () => {
       padding: '12px 20px', 
       display: 'flex', 
       flexWrap: 'wrap', 
-      justifyContent: 'space-between', // Pushes location left, times center/right
+      justifyContent: 'space-between',
       alignItems: 'center', 
       gap: '20px', 
       fontSize: '0.9rem', 
@@ -89,7 +79,6 @@ const PrayerTimesBar = () => {
       borderTop: '1px solid rgba(255,255,255,0.05)' 
     }}>
       
-      {/* Left Side: Location & Live Clock */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ca8a04', fontWeight: 'bold' }}>
           <FaMapMarkerAlt /> DHAKA, BD
@@ -99,7 +88,6 @@ const PrayerTimesBar = () => {
         </div>
       </div>
 
-      {/* Right Side: The 5 Waqt Times (with dynamic highlighting) */}
       <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
         {schedule.map((waqt, index) => {
           const isActive = activeWaqt === waqt.name;
@@ -109,7 +97,6 @@ const PrayerTimesBar = () => {
               display: 'flex', 
               alignItems: 'center', 
               gap: '5px',
-              // If it's the active waqt, add a nice golden highlight pill
               background: isActive ? 'rgba(202, 138, 4, 0.2)' : 'transparent',
               padding: isActive ? '4px 10px' : '4px 0',
               borderRadius: '8px',

@@ -1,11 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaChevronDown, FaSearchLocation } from 'react-icons/fa'; // Added a nice icon for tracking
+import { FaChevronDown, FaSearchLocation } from 'react-icons/fa';
 import logo from '../assets/logo.png';
 
 const Navbar = () => {
-  // No more authentication logic needed here since the public site is passwordless for clients!
-
   return (
     <nav className="main-navbar">
       <div className="navbar-brand">
@@ -50,7 +48,6 @@ const Navbar = () => {
       </ul>
 
       <div className="navbar-actions">
-        {/* Replaced Login/Logout with a clean Tracking button */}
         <Link 
           to="/track" 
           className="login-btn" 

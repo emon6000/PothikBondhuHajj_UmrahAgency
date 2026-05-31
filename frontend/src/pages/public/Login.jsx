@@ -14,8 +14,7 @@ const Login = () => {
       const response = await fetch('http://localhost:5000/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        // Use credentials.identifier (which holds the email/phone) and credentials.password
-        body: JSON.stringify({ 
+       body: JSON.stringify({ 
           email: credentials.identifier, 
           password: credentials.password 
         })
@@ -24,13 +23,11 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Save the token and user info to localStorage
         localStorage.setItem('pothik_token', data.token);
         localStorage.setItem('pothik_user', JSON.stringify(data.user));
 
         alert(`Welcome back, ${data.user.name}!`);
         
-        // Redirect based on role
         if (data.user.role === 'ADMIN') {
            navigate('/admin-dashboard'); 
         } else {
@@ -92,7 +89,6 @@ const Login = () => {
               </button>
             </form>
 
-            {/* Helpline Box (Replaces 'Forgot Password') */}
             <div className="auth-help-box">
               <p className="help-title">Forgot your password?</p>
               <p className="help-desc">For security reasons, please contact our helpline to reset your credentials:</p>

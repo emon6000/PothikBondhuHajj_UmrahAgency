@@ -1,9 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import packagesData from '../data/packages.json'; // 1. Import the JSON database!
 
 const FeaturedPackages = () => {
-  const displayPackages = packagesData.slice(0, 4);
+  const [featuredPackages, setFeaturedPackages] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/packages');
+        const data = await response.json();
+        
+        setFeaturedPackages(data.slice(0, 4));
+      } catch (err) {
+        console.error("Error fetching featured packages:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFeatured();
+  }, []);
 
   return (
     <section className="packages-section">
@@ -14,29 +30,44 @@ const FeaturedPackages = () => {
         </div>
 
         <div className="packages-grid">
-          {displayPackages.map((pkg) => (
-            <div className="package-card" key={pkg.id}>
-              {/* Card Image */}
-              <div className="card-image-wrapper">
-                <img src={pkg.image} alt={pkg.title} className="card-image" />
-              </div>
-              
-              {/* Card Body */}
-              <div className="card-body">
-                <h3 className="card-title">{pkg.title}</h3>
-                <p className="card-price">{pkg.price}</p>
-                
-                <div className="card-meta">
-                  <span className="duration-badge">{pkg.duration}</span>
+          {loading ? (
+            <p style={{ textAlign: 'center', width: '100%', color: '#64748b' }}>Loading live packages...</p>
+          ) : featuredPackages.length > 0 ? (
+            featuredPackages.map((pkg) => (
+              <div className="package-card" key={pkg.id}>
+                {/* Card Image */}
+                <div className="card-image-wrapper">
+                  <img 
+                    src={pkg.image || "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800"} 
+                    alt={pkg.title} 
+                    className="card-image" 
+                  />
                 </div>
                 
-                {/* 3. This now dynamically links to /packages/h1, /packages/u1, etc. */}
-                <Link to={`/packages/${pkg.id}`} className="view-details-btn">
-                  View Details
-                </Link>
+                {/* Card Body */}
+                <div className="card-body">
+                  <h3 className="card-title">{pkg.title}</h3>
+                  
+                  <p className="card-price">
+                    {pkg.cost ? pkg.cost.toLocaleString() : '0'} BDT
+                  </p>
+                  
+                  <div className="card-meta">
+                    <span className="duration-badge">{pkg.duration}</span>
+                    <span style={{ fontSize: '0.8rem', color: '#064e3b', fontWeight: 'bold', marginLeft: '10px', textTransform: 'uppercase' }}>
+                      {pkg.type}
+                    </span>
+                  </div>
+                  
+                  <Link to={`/packages/${pkg.id}`} className="view-details-btn">
+                    View Details
+                  </Link>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p style={{ textAlign: 'center', width: '100%' }}>No packages available at the moment.</p>
+          )}
         </div>
       </div>
     </section>

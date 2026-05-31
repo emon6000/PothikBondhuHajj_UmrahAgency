@@ -32,10 +32,10 @@ const AboutPreview = () => {
             height="315"
             src="https://www.youtube.com/embed/zSMuaCNb_B4?si=6NsJvK-DUPy1cLuc"
             title="YouTube video player"
-            frameborder="0"
+            frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen
+            referrerPolicy="no-referrer-when-downgrade"
+            allowFullScreen
           ></iframe>
         </div>
       </div>

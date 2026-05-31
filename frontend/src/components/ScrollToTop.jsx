@@ -6,11 +6,10 @@ const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    // This tells the browser to instantly scroll to the top-left corner
     window.scrollTo(0, 0);
-  }, [pathname]); // This runs every time the path (URL) changes
+  }, [pathname]);
 
-  return null; // It doesn't render any UI
+  return null;
 };
 
 export default ScrollToTop;

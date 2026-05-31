@@ -38,7 +38,6 @@ const Hero = () => {
               </div>
             </div>
 
-            {/* Right Side: Map */}
             <div className="hero-right">
               <div className="map-wrapper">
                 <Link to="/contact">
@@ -49,7 +48,6 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* Bottom Layer: Social Proof Stats */}
           <div className="stats-container">
             <div className="stat-card">
               <h2>700+</h2>

@@ -6,7 +6,6 @@ const VisaRequirements = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('hajj');
 
-  // This checks the URL when the page loads to open the correct tab
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const type = params.get('type');
@@ -22,7 +21,6 @@ const VisaRequirements = () => {
         <p>Ensure you have all the necessary documents for a smooth visa processing experience.</p>
       </div>
 
-      {/* Tab Navigation */}
       <div className="visa-tabs">
         <button 
           className={`tab-btn ${activeTab === 'hajj' ? 'active' : ''}`}
@@ -38,10 +36,8 @@ const VisaRequirements = () => {
         </button>
       </div>
 
-      {/* Content Area */}
       <div className="visa-content-container">
         
-        {/* HAJJ REQUIREMENTS */}
         {activeTab === 'hajj' && (
           <div className="visa-content-panel fade-in">
             <h3 className="panel-title">Hajj Visa Checklist (2026-2027)</h3>
@@ -87,7 +83,6 @@ const VisaRequirements = () => {
           </div>
         )}
 
-        {/* UMRAH REQUIREMENTS */}
         {activeTab === 'umrah' && (
           <div className="visa-content-panel fade-in">
             <h3 className="panel-title">Umrah e-Visa Checklist</h3>
@@ -120,13 +115,6 @@ const VisaRequirements = () => {
             </div>
           </div>
         )}
-
-        {/* Call to Action at the bottom */}
-        <div className="visa-help-box">
-          <h4>Need Assistance?</h4>
-          <p>Our document verification team can review your files before submission to ensure a 100% approval rate.</p>
-          <Link to="/login" className="contact-support-btn">Log In to Upload Documents</Link>
-        </div>
 
       </div>
     </div>

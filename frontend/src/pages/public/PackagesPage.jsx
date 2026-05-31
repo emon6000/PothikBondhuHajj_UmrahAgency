@@ -5,12 +5,10 @@ import { FaClock, FaMoneyBillWave, FaCalendarAlt } from 'react-icons/fa';
 const PackagesPage = () => {
   const location = useLocation();
   const [activeFilter, setActiveFilter] = useState('all');
-  
-  // 1. The new states to hold database data
+
   const [allPackages, setAllPackages] = useState([]);
   const [filteredPackages, setFilteredPackages] = useState([]);
 
-  // 2. Fetch live data from PostgreSQL when the component mounts
   useEffect(() => {
     const fetchLivePackages = async () => {
       try {
@@ -18,13 +16,12 @@ const PackagesPage = () => {
         const data = await response.json();
         setAllPackages(data);
       } catch (error) {
-        console.error("Failed to fetch database packages:", error);
+        console.error('Failed to fetch database packages:', error);
       }
     };
     fetchLivePackages();
   }, []);
 
-  // 3. Read URL params (e.g., ?type=hajj) for the initial filter
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const type = params.get('type');
@@ -35,8 +32,6 @@ const PackagesPage = () => {
       setActiveFilter('all');
     }
   }, [location]);
-
-  // 4. Update the filtered list whenever the activeFilter OR the database data changes
   useEffect(() => {
     if (activeFilter === 'all') {
       setFilteredPackages(allPackages);
@@ -47,7 +42,6 @@ const PackagesPage = () => {
 
   return (
     <div className="packages-explorer-page">
-      {/* Dynamic Header */}
       <div className="explorer-header">
         <h2>
           {activeFilter === 'hajj'
@@ -61,7 +55,6 @@ const PackagesPage = () => {
         </p>
       </div>
 
-      {/* Filter Toggles */}
       <div className="explorer-filters">
         <button
           className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
@@ -90,7 +83,13 @@ const PackagesPage = () => {
             <div className="explorer-card fade-in" key={pkg.id}>
               <div className="card-image-box">
                 {/* Fallback image used in case the database doesn't have an image column yet */}
-                <img src={pkg.image || "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800"} alt={pkg.title} />
+                <img
+                  src={
+                    pkg.image ||
+                    'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800'
+                  }
+                  alt={pkg.title}
+                />
                 <span className={`pkg-type-badge ${pkg.type}`}>{pkg.type.toUpperCase()}</span>
               </div>
 
@@ -104,7 +103,9 @@ const PackagesPage = () => {
                   <p>
                     <FaMoneyBillWave className="detail-icon" /> <strong>Price:</strong>{' '}
                     {/* Database uses 'cost' instead of 'price', formatted nicely */}
-                    <span className="price-text">{pkg.cost ? pkg.cost.toLocaleString() : '0'} BDT</span>
+                    <span className="price-text">
+                      {pkg.cost ? pkg.cost.toLocaleString() : '0'} BDT
+                    </span>
                   </p>
                   <p>
                     <FaCalendarAlt className="detail-icon" /> <strong>Availability:</strong> Open
@@ -129,7 +130,11 @@ const PackagesPage = () => {
           ))
         ) : (
           <div className="no-packages">
-            <h3>{allPackages.length === 0 ? "Loading live packages..." : "No packages found for this category."}</h3>
+            <h3>
+              {allPackages.length === 0
+                ? 'Loading live packages...'
+                : 'No packages found for this category.'}
+            </h3>
           </div>
         )}
       </div>

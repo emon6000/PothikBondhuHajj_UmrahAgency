@@ -11,7 +11,6 @@ const PublicLayout = () => {
       <TopHeader />
       <Navbar />
       <PrayerTimesBar />
-      {/* <Outlet /> is the magic variable where your specific pages (Home, Track, etc.) will load */}
       <main className="main-content" style={{ minHeight: '60vh' }}>
         <Outlet /> 
       </main>

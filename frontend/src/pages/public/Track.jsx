@@ -1,29 +1,51 @@
-import React, { useState } from 'react';
-import { FaCheckCircle, FaSpinner, FaCreditCard, FaFileInvoice, FaPlaneDeparture, FaSearch } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
+import {
+  FaArrowRight,
+  FaCheckCircle,
+  FaCreditCard,
+  FaFileInvoice,
+  FaLock,
+  FaPlaneDeparture,
+  FaSearch,
+  FaSpinner,
+} from 'react-icons/fa';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Track = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const [trackingId, setTrackingId] = useState('');
   const [bookingData, setBookingData] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleTrack = async (e) => {
-    e.preventDefault();
+  const [showPaymentInput, setShowPaymentInput] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState('');
+
+  useEffect(() => {
+    if (location.state?.paymentSuccess) {
+      const successfulId = location.state.bookingId;
+      setTrackingId(successfulId);
+      fetchTrackingData(successfulId);
+      window.history.replaceState({}, document.title);
+      alert('✅ Payment Confirmed! Your financial ledger has been updated.');
+    }
+  }, [location.state]);
+
+  const fetchTrackingData = async (idToTrack) => {
     setError('');
-    setBookingData(null);
     setLoading(true);
-
     try {
-      // 1. ADD .trim() HERE to clean the ID before sending to the server
-      const cleanId = trackingId.trim(); 
+      const cleanId = idToTrack.trim();
       const response = await fetch(`http://localhost:5000/api/track/${cleanId}`);
-      
       const data = await response.json();
-
       if (response.ok) {
         setBookingData(data);
+        setShowPaymentInput(false);
       } else {
         setError(data.error);
+        setBookingData(null);
       }
     } catch (err) {
       setError('Could not connect to the server.');
@@ -32,116 +54,466 @@ const Track = () => {
     }
   };
 
-  // Helper functions to determine the CSS class of each step based on the database status
+  const handleTrackSubmit = (e) => {
+    e.preventDefault();
+    fetchTrackingData(trackingId);
+  };
+
+  const handleInitiatePayment = () => {
+    const remaining = bookingData.total_cost - bookingData.amount_paid;
+    setPaymentAmount(remaining.toString());
+    setShowPaymentInput(true);
+  };
+
+  const handleRedirectToGateway = () => {
+    const amount = parseInt(paymentAmount);
+    const remaining = bookingData.total_cost - bookingData.amount_paid;
+    if (!amount || amount <= 0) return alert('Please enter a valid amount.');
+    if (amount > remaining) return alert(`Maximum allowed payment is ${remaining} BDT.`);
+    navigate('/secure-gateway', {
+      state: {
+        bookingId: bookingData.id,
+        amount: amount,
+        clientName: bookingData.client_name,
+      },
+    });
+  };
+
   const getStepClass = (stepIndex, currentStatus) => {
     const statuses = ['PENDING_APPROVAL', 'DOCUMENTS_NEEDED', 'PROCESSING_VISA', 'READY_TO_TRAVEL'];
     const currentIndex = statuses.indexOf(currentStatus);
-    
     if (currentIndex > stepIndex) return 'step completed';
     if (currentIndex === stepIndex) return 'step active';
     return 'step pending';
   };
 
   return (
-    <div className="dashboard-layout" style={{ minHeight: '80vh', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '3rem 1rem', background: '#f8fafc' }}>
-      
-      <div style={{ textAlign: 'center', maxWidth: '600px', width: '100%', marginBottom: '2rem' }}>
-        <h2>Track Your Journey</h2>
-        <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>Enter the secure Tracking ID provided by Pothik Bondhu to view your visa and flight progress.</p>
-        
-        {/* The Search Bar */}
-        <form onSubmit={handleTrack} style={{ display: 'flex', gap: '10px' }}>
-          <input 
-            type="text" 
-            placeholder="e.g., PB-2027-8892 or UUID..." 
+    <div
+      className="dashboard-layout"
+      style={{
+        minHeight: '80vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '4rem 1rem',
+        background: '#f8fafc',
+      }}
+    >
+      <div style={{ textAlign: 'center', maxWidth: '600px', width: '100%', marginBottom: '3rem' }}>
+        <h2 style={{ fontSize: '2.2rem', color: '#064e3b', marginBottom: '10px' }}>
+          Track Your Journey
+        </h2>
+        <p style={{ color: '#64748b', marginBottom: '2rem', fontSize: '1.1rem' }}>
+          Enter your Secure Tracking ID below.
+        </p>
+        <form
+          onSubmit={handleTrackSubmit}
+          style={{
+            display: 'flex',
+            gap: '10px',
+            background: 'white',
+            padding: '8px',
+            borderRadius: '50px',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+          }}
+        >
+          <input
+            type="text"
+            placeholder="e.g., 550e8400-e29b-41d4..."
             value={trackingId}
             onChange={(e) => setTrackingId(e.target.value)}
             required
-            style={{ flex: 1, padding: '12px 20px', borderRadius: '30px', border: '1px solid #cbd5e1', fontSize: '1rem', outline: 'none' }}
+            style={{
+              flex: 1,
+              padding: '12px 25px',
+              borderRadius: '50px',
+              border: 'none',
+              fontSize: '1rem',
+              outline: 'none',
+            }}
           />
-          <button type="submit" style={{ background: '#064e3b', color: 'white', padding: '0 25px', borderRadius: '30px', border: 'none', cursor: 'pointer', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FaSearch /> Track
+          <button
+            type="submit"
+            style={{
+              background: '#064e3b',
+              color: 'white',
+              padding: '0 30px',
+              borderRadius: '50px',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '1.1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontWeight: 'bold',
+            }}
+          >
+            {loading ? (
+              <FaSpinner className="spin-anim" />
+            ) : (
+              <>
+                <FaSearch /> Track
+              </>
+            )}
           </button>
         </form>
-
-        {error && <div style={{ color: '#ef4444', marginTop: '1rem', background: '#fee2e2', padding: '10px', borderRadius: '8px' }}>{error}</div>}
-        {loading && <div style={{ color: '#064e3b', marginTop: '1rem' }}><FaSpinner className="spin-anim" /> Searching database...</div>}
+        {error && (
+          <div
+            style={{
+              color: '#ef4444',
+              marginTop: '1.5rem',
+              background: '#fee2e2',
+              padding: '12px',
+              borderRadius: '8px',
+              fontWeight: '500',
+            }}
+          >
+            {error}
+          </div>
+        )}
       </div>
 
-      {/* Main Dashboard Content (Only shows if ID is found) */}
       {bookingData && (
-        <main className="dashboard-main" style={{ maxWidth: '800px', width: '100%', background: 'white', borderRadius: '15px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', padding: '2rem' }}>
-          
-          {/* Welcome Banner */}
-          <header className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #f1f5f9', paddingBottom: '1.5rem', marginBottom: '1.5rem' }}>
+        <main
+          className="dashboard-main fade-in"
+          style={{
+            maxWidth: '850px',
+            width: '100%',
+            background: 'white',
+            borderRadius: '20px',
+            boxShadow: '0 15px 35px rgba(0,0,0,0.05)',
+            padding: '3rem',
+            borderTop: '6px solid #064e3b',
+          }}
+        >
+          <header
+            className="dashboard-header"
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              borderBottom: '2px solid #f1f5f9',
+              paddingBottom: '1.5rem',
+              marginBottom: '2rem',
+              flexWrap: 'wrap',
+              gap: '1rem',
+            }}
+          >
             <div>
-              <h1 style={{ fontSize: '1.5rem', color: '#0f172a', marginBottom: '5px' }}>Pilgrim: {bookingData.client_name}</h1>
-              <p style={{ color: '#64748b' }}>Tracking ID: <strong>{bookingData.id}</strong></p>
+              <p
+                style={{
+                  margin: 0,
+                  color: '#64748b',
+                  textTransform: 'uppercase',
+                  fontSize: '0.85rem',
+                  letterSpacing: '1px',
+                }}
+              >
+                Pilgrim Profile
+              </p>
+              <h1 style={{ fontSize: '1.8rem', color: '#0f172a', margin: '5px 0' }}>
+                {bookingData.client_name}
+              </h1>
+              <p style={{ margin: 0, color: '#64748b', fontSize: '0.95rem' }}>
+                ID:{' '}
+                <code style={{ background: '#f1f5f9', padding: '4px 8px', borderRadius: '4px' }}>
+                  {bookingData.id}
+                </code>
+              </p>
             </div>
-            <div className="package-badge" style={{ background: '#dcfce7', color: '#166534', padding: '8px 15px', borderRadius: '20px', fontWeight: 'bold', fontSize: '0.9rem' }}>
+            <div
+              style={{
+                background: '#ecfdf5',
+                color: '#064e3b',
+                padding: '8px 20px',
+                borderRadius: '30px',
+                fontWeight: 'bold',
+                border: '1px solid #a7f3d0',
+              }}
+            >
               {bookingData.package_name}
             </div>
           </header>
 
-          {/* Financial Summary */}
-          <div style={{ display: 'flex', gap: '20px', marginBottom: '2rem', background: '#f8fafc', padding: '1.5rem', borderRadius: '10px' }}>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontSize: '0.85rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>Amount Paid</p>
-              <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#064e3b' }}>{bookingData.amount_paid} BDT</p>
+          <div style={{ marginBottom: '3rem' }}>
+            <div style={{ display: 'flex', gap: '20px', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+              <div
+                style={{
+                  flex: '1',
+                  minWidth: '200px',
+                  background: '#f8fafc',
+                  padding: '2rem',
+                  borderRadius: '15px',
+                  border: '1px solid #e2e8f0',
+                }}
+              >
+                <p
+                  style={{
+                    color: '#64748b',
+                    fontSize: '0.85rem',
+                    marginBottom: '8px',
+                    textTransform: 'uppercase',
+                    fontWeight: 'bold',
+                    letterSpacing: '1px',
+                  }}
+                >
+                  Amount Paid
+                </p>
+                <h3 style={{ margin: 0, fontSize: '2rem', color: '#16a34a' }}>
+                  {bookingData.amount_paid.toLocaleString()}{' '}
+                  <span style={{ fontSize: '1rem', color: '#64748b' }}>BDT</span>
+                </h3>
+              </div>
+              <div
+                style={{
+                  flex: '1',
+                  minWidth: '200px',
+                  background: '#f8fafc',
+                  padding: '2rem',
+                  borderRadius: '15px',
+                  border: '1px solid #e2e8f0',
+                }}
+              >
+                <p
+                  style={{
+                    color: '#64748b',
+                    fontSize: '0.85rem',
+                    marginBottom: '8px',
+                    textTransform: 'uppercase',
+                    fontWeight: 'bold',
+                    letterSpacing: '1px',
+                  }}
+                >
+                  Total Cost
+                </p>
+                <h3 style={{ margin: 0, fontSize: '2rem', color: '#0f172a' }}>
+                  {bookingData.total_cost.toLocaleString()}{' '}
+                  <span style={{ fontSize: '1rem', color: '#64748b' }}>BDT</span>
+                </h3>
+              </div>
             </div>
-            <div style={{ flex: 1, borderLeft: '2px solid #e2e8f0', paddingLeft: '20px' }}>
-              <p style={{ fontSize: '0.85rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>Total Cost</p>
-              <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#0f172a' }}>{bookingData.total_cost} BDT</p>
-            </div>
+
+            {bookingData.amount_paid < bookingData.total_cost ? (
+              <div
+                style={{
+                  background: 'white',
+                  padding: '2.5rem',
+                  borderRadius: '15px',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 4px 10px rgba(0,0,0,0.03)',
+                  textAlign: 'center',
+                }}
+              >
+                {!showPaymentInput ? (
+                  <div className="fade-in">
+                    <h3 style={{ fontSize: '1.3rem', color: '#0f172a', margin: '0 0 10px 0' }}>
+                      Ready to complete your payment?
+                    </h3>
+                    <p style={{ color: '#64748b', marginBottom: '2rem', fontSize: '1rem' }}>
+                      Remaining Balance:{' '}
+                      <strong style={{ color: '#d97706' }}>
+                        {(bookingData.total_cost - bookingData.amount_paid).toLocaleString()} BDT
+                      </strong>
+                    </p>
+                    <button
+                      onClick={handleInitiatePayment}
+                      style={{
+                        background: '#064e3b',
+                        color: 'white',
+                        border: 'none',
+                        padding: '15px 40px',
+                        borderRadius: '50px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        fontSize: '1.1rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 4px 15px rgba(6, 78, 59, 0.2)',
+                      }}
+                    >
+                      <FaLock /> Pay Online Safely
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    className="fade-in"
+                    style={{ maxWidth: '450px', margin: '0 auto', textAlign: 'left' }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '10px',
+                      }}
+                    >
+                      <label style={{ fontSize: '0.95rem', fontWeight: 'bold', color: '#334155' }}>
+                        Amount to Pay (BDT)
+                      </label>
+                      <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                        Remaining:{' '}
+                        {(bookingData.total_cost - bookingData.amount_paid).toLocaleString()}
+                      </span>
+                    </div>
+                    <input
+                      type="number"
+                      value={paymentAmount}
+                      onChange={(e) => setPaymentAmount(e.target.value)}
+                      autoFocus
+                      style={{
+                        width: '100%',
+                        padding: '15px',
+                        borderRadius: '10px',
+                        border: '2px solid #064e3b',
+                        outline: 'none',
+                        fontSize: '1.2rem',
+                        marginBottom: '20px',
+                        background: '#f8fafc',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                    <div style={{ display: 'flex', gap: '15px' }}>
+                      <button
+                        onClick={() => setShowPaymentInput(false)}
+                        style={{
+                          flex: 1,
+                          background: '#f1f5f9',
+                          color: '#475569',
+                          border: '1px solid #cbd5e1',
+                          padding: '15px',
+                          borderRadius: '10px',
+                          cursor: 'pointer',
+                          fontWeight: 'bold',
+                          fontSize: '1rem',
+                          transition: '0.2s',
+                        }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleRedirectToGateway}
+                        style={{
+                          flex: 2,
+                          background: '#064e3b',
+                          color: 'white',
+                          border: 'none',
+                          padding: '15px',
+                          borderRadius: '10px',
+                          cursor: 'pointer',
+                          fontWeight: 'bold',
+                          fontSize: '1.1rem',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          gap: '8px',
+                          transition: '0.2s',
+                          boxShadow: '0 4px 15px rgba(6, 78, 59, 0.2)',
+                        }}
+                      >
+                        Proceed to Gateway <FaArrowRight />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div
+                style={{
+                  textAlign: 'center',
+                  color: '#16a34a',
+                  fontWeight: 'bold',
+                  padding: '25px',
+                  background: '#f0fdf4',
+                  borderRadius: '15px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  border: '1px solid #bbf7d0',
+                  fontSize: '1.2rem',
+                }}
+              >
+                <FaCheckCircle size={28} /> Fully Paid! Enjoy your spiritual journey.
+              </div>
+            )}
           </div>
 
-          {/* Journey Progress Tracker */}
-          <section className="progress-section">
-            <h2 style={{ fontSize: '1.2rem', marginBottom: '1.5rem', color: '#0f172a' }}>Your Journey Status</h2>
-            
+          <section
+            className="progress-section"
+            style={{ borderTop: '1px solid #e2e8f0', paddingTop: '3rem' }}
+          >
+            <h2 style={{ fontSize: '1.4rem', marginBottom: '2rem', color: '#0f172a' }}>
+              Journey Milestones
+            </h2>
             <div className="stepper-container">
-              
-              {/* Step 0: PENDING_APPROVAL */}
               <div className={getStepClass(0, bookingData.status)}>
-                <div className="step-icon">{getStepClass(0, bookingData.status).includes('completed') ? <FaCheckCircle /> : <FaSpinner className={getStepClass(0, bookingData.status).includes('active') ? "spin-anim" : ""} />}</div>
+                <div className="step-icon">
+                  {getStepClass(0, bookingData.status).includes('completed') ? (
+                    <FaCheckCircle />
+                  ) : (
+                    <FaSpinner
+                      className={
+                        getStepClass(0, bookingData.status).includes('active') ? 'spin-anim' : ''
+                      }
+                    />
+                  )}
+                </div>
                 <div className="step-content">
                   <h4>Application Review</h4>
-                  <p>Initial registration submitted and under agency review.</p>
+                  <p>Initial registration submitted.</p>
                 </div>
               </div>
-
-              {/* Step 1: DOCUMENTS_NEEDED */}
               <div className={getStepClass(1, bookingData.status)}>
-                <div className="step-icon">{getStepClass(1, bookingData.status).includes('completed') ? <FaCheckCircle /> : <FaFileInvoice className={getStepClass(1, bookingData.status).includes('active') ? "pulse-anim" : ""} />}</div>
+                <div className="step-icon">
+                  {getStepClass(1, bookingData.status).includes('completed') ? (
+                    <FaCheckCircle />
+                  ) : (
+                    <FaFileInvoice />
+                  )}
+                </div>
                 <div className="step-content">
                   <h4>Document Verification</h4>
-                  <p>Verifying your NID and Passport for Ministry submission.</p>
+                  <p>Verifying your NID and Passport.</p>
                 </div>
               </div>
-
-              {/* Step 2: PROCESSING_VISA */}
               <div className={getStepClass(2, bookingData.status)}>
-                <div className="step-icon">{getStepClass(2, bookingData.status).includes('completed') ? <FaCheckCircle /> : <FaCreditCard className={getStepClass(2, bookingData.status).includes('active') ? "pulse-anim" : ""} />}</div>
+                <div className="step-icon">
+                  {getStepClass(2, bookingData.status).includes('completed') ? (
+                    <FaCheckCircle />
+                  ) : (
+                    <FaCreditCard />
+                  )}
+                </div>
                 <div className="step-content">
                   <h4>Visa & Payments</h4>
-                  <p>Processing visa with the Saudi Embassy and clearing milestone payments.</p>
+                  <p>Processing visa and payments.</p>
                 </div>
               </div>
-
-              {/* Step 3: READY_TO_TRAVEL */}
               <div className={getStepClass(3, bookingData.status)}>
-                <div className="step-icon">{getStepClass(3, bookingData.status).includes('completed') || getStepClass(3, bookingData.status).includes('active') ? <FaPlaneDeparture color="green" /> : <FaPlaneDeparture />}</div>
+                <div className="step-icon">
+                  {getStepClass(3, bookingData.status).includes('completed') ||
+                  getStepClass(3, bookingData.status).includes('active') ? (
+                    <FaPlaneDeparture color="green" />
+                  ) : (
+                    <FaPlaneDeparture />
+                  )}
+                </div>
                 <div className="step-content">
                   <h4>Ready for Departure</h4>
-                  <p>Visa approved! Collect your physical guidebook and bags.</p>
+                  <p>Visa approved!</p>
                 </div>
               </div>
-
             </div>
           </section>
-
         </main>
       )}
+
+      <style>{`
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      `}</style>
     </div>
   );
 };

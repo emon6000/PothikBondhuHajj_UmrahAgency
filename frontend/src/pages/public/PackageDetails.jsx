@@ -1,37 +1,59 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { FaPlane, FaHotel, FaBus, FaUtensils, FaCheckCircle, FaArrowLeft, FaIdBadge } from 'react-icons/fa';
-import packagesData from '../../data/packages.json';
 
 const PackageDetails = () => {
-  const { id } = useParams(); // Gets the ID from the URL (e.g., 'h1')
+  const { id } = useParams(); 
   const navigate = useNavigate();
   const [pkg, setPkg] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Find the specific package from our mock database
-    const foundPackage = packagesData.find(p => p.id === id);
-    setPkg(foundPackage);
+    const fetchPackageDetails = async () => {
+      try {
+        // Fetch all packages and find the specific one
+        // (Or you can create a specific backend route for /api/packages/:id)
+        const response = await fetch('http://localhost:5000/api/packages');
+        const data = await response.json();
+        const foundPackage = data.find(p => p.id === id);
+        setPkg(foundPackage);
+      } catch (err) {
+        console.error("Error fetching package details:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPackageDetails();
   }, [id]);
 
+  if (loading) {
+    return <div style={{ padding: '100px', textAlign: 'center' }}>Loading package details...</div>;
+  }
+
   if (!pkg) {
-    return <div className="loading-state">Loading package details...</div>;
+    return (
+      <div style={{ padding: '100px', textAlign: 'center' }}>
+        <h2>Package not found</h2>
+        <button onClick={() => navigate('/packages')}>Back to Packages</button>
+      </div>
+    );
   }
 
   return (
     <div className="package-details-page">
       
-      {/* 1. Back Button & Header */}
-      <div className="details-top-bar">
-        <button className="back-btn" onClick={() => navigate(-1)}>
+      <div className="details-top-bar" style={{ padding: '20px' }}>
+        <button className="back-btn" onClick={() => navigate(-1)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#064e3b', fontWeight: 'bold' }}>
           <FaArrowLeft /> Back to Packages
         </button>
       </div>
 
-      {/* 2. Hero Section of the Package */}
       <div className="details-hero">
         <div className="details-hero-image">
-          <img src={pkg.image} alt={pkg.title} />
+          <img 
+            src={pkg.image || "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=1200"} 
+            alt={pkg.title} 
+          />
           <div className="type-badge">{pkg.type.toUpperCase()}</div>
         </div>
         
@@ -40,21 +62,20 @@ const PackageDetails = () => {
           <p className="details-duration">Total Duration: <strong>{pkg.duration}</strong></p>
           <div className="details-price-box">
             <span className="price-label">Starting from</span>
-            <h2 className="price-amount">{pkg.price}</h2>
+            {/* Updated from .price to .cost with formatting */}
+            <h2 className="price-amount">{pkg.cost ? pkg.cost.toLocaleString() : '0'} BDT</h2>
             <span className="price-suffix">/ Per Person</span>
           </div>
           
-          <Link to="/register" className="book-now-large-btn">
+          <Link to="/register" state={{ selectedPackageId: pkg.id }} className="book-now-large-btn">
             Proceed to Pre-Registration
           </Link>
           <p className="guarantee-text"><FaCheckCircle /> Authorized Hajj & Umrah Agency</p>
         </div>
       </div>
 
-      {/* 3. Detailed Information Grid */}
       <div className="details-content-grid">
         
-        {/* Left Column: What's Included */}
         <div className="details-main-content">
           <section className="info-section">
             <h3>Package Inclusions</h3>
@@ -73,15 +94,12 @@ const PackageDetails = () => {
             <ul className="itinerary-list">
               <li><strong>Day 1:</strong> Departure from Dhaka (Hazrat Shahjalal International Airport) to Jeddah. Transfer to Makkah hotel.</li>
               <li><strong>Day 2-5:</strong> Perform Umrah with our experienced Moallem. Free days for regular prayers at Masjid al-Haram.</li>
-              <li><strong>Day 6:</strong> Guided Ziyarah (sightseeing) to historical places in Makkah (Arafat, Mina, Muzdalifah, Jabal al-Nour).</li>
-              <li><strong>Day 7:</strong> Transfer from Makkah to Madinah via AC luxury bus or Haramain High-Speed Railway.</li>
-              <li><strong>Day 8-12:</strong> Stay in Madinah. Prayers at Al-Masjid an-Nabawi. Guided Ziyarah to Quba Mosque and Mount Uhud.</li>
+              <li>{pkg.features || "Guided Ziyarah (sightseeing) to historical places in Makkah."}</li>
               <li><strong>Final Day:</strong> Transfer to Madinah/Jeddah airport for departure back to Dhaka.</li>
             </ul>
           </section>
         </div>
 
-        {/* Right Column: Important Notes */}
         <div className="details-sidebar">
           <div className="sidebar-card">
             <h3>Important Notes</h3>
@@ -94,7 +112,7 @@ const PackageDetails = () => {
           
           <div className="sidebar-contact">
             <h4>Need Customization?</h4>
-            <p>Call our Dhaka or Comilla branch for a customized itinerary tailored to your family's needs.</p>
+            <p>Call our branch for a customized itinerary tailored to your family's needs.</p>
             <p className="contact-number">+880 1733 391 826</p>
           </div>
         </div>

@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css'; // CRITICAL for map rendering
 import { FaMapMarkerAlt, FaPhoneAlt, FaEnvelope } from 'react-icons/fa';
 
-// Fixing default Leaflet icon paths in React
 import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -11,10 +10,8 @@ let DefaultIcon = L.icon({ iconUrl: icon, shadowUrl: iconShadow, iconAnchor: [12
 L.Marker.prototype.options.icon = DefaultIcon;
 
 const Contact = () => {
-  // 1. State for handling the Formspree submission feedback
   const [formStatus, setFormStatus] = useState('');
 
-  // 2. Branch Coordinates based on the Pothik Bondhu map image
   const branches = [
     { id: 1, name: "Dinajpur Branch", pos: [25.6221, 88.6438], address: "Station Road, Dinajpur" },
     { id: 2, name: "Netrokona Branch", pos: [24.8835, 90.7270], address: "Main Town Road, Netrokona" },
@@ -26,7 +23,6 @@ const Contact = () => {
     { id: 8, name: "Cox's Bazar Branch", pos: [21.4272, 92.0058], address: "Kolatoli Road, Cox's Bazar" }
   ];
 
-  // 3. Formspree API Submission Logic
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setFormStatus('sending');
@@ -42,8 +38,8 @@ const Contact = () => {
       
       if (response.ok) {
         setFormStatus('success');
-        form.reset(); // Clear the form on success
-        setTimeout(() => setFormStatus(''), 5000); // Hide the success message after 5 seconds
+        form.reset();
+        setTimeout(() => setFormStatus(''), 5000);
       } else {
         setFormStatus('error');
       }

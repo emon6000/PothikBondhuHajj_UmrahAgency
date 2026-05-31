@@ -6,7 +6,6 @@ const PreRegistration = () => {
   const navigate = useNavigate();
   const formRef = useRef(null);
 
-  // --- NEW: FETCH PACKAGES FROM DATABASE ---
   const [hajjPackages, setHajjPackages] = useState([]);
   
   useEffect(() => {
@@ -14,7 +13,6 @@ const PreRegistration = () => {
       try {
         const response = await fetch('http://localhost:5000/api/packages');
         const data = await response.json();
-        // Filter only the Hajj packages for this page
         setHajjPackages(data.filter(pkg => pkg.type === 'hajj'));
       } catch (err) {
         console.error("Failed to load packages", err);
@@ -23,14 +21,12 @@ const PreRegistration = () => {
     fetchPackages();
   }, []);
 
-  // --- Session Check ---
   const [user, setUser] = useState(null);
   useEffect(() => {
     const userStr = localStorage.getItem('pothik_user');
     if (userStr) setUser(JSON.parse(userStr));
   }, []);
 
-  // --- Form State ---
   const [selectedPkgId, setSelectedPkgId] = useState('');
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', nid: '', passport: '' });
 
@@ -85,7 +81,6 @@ const PreRegistration = () => {
           <p>Secure your spot for the upcoming Hajj season. Choose your desired package tier below.</p>
         </div>
 
-        {/* DYNAMIC PACKAGES GRID */}
         <div className="reg-packages-grid">
           {hajjPackages.length === 0 ? <p>Loading live packages...</p> : null}
           {hajjPackages.map((pkg) => (
@@ -114,7 +109,6 @@ const PreRegistration = () => {
         </div>
       </section>
 
-      {/* Bottom Form (Same logic as before) */}
       <section className="reg-form-section" ref={formRef}>
         <div className="form-container">
           {user ? (

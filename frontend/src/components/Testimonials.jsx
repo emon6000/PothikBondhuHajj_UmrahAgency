@@ -3,7 +3,6 @@ import React from 'react';
 import { FaStar, FaQuoteLeft } from 'react-icons/fa';
 
 const Testimonials = () => {
-  // Authentic-sounding dummy reviews
   const reviews = [
     {
       id: 1,
@@ -40,18 +39,14 @@ const Testimonials = () => {
         <div className="testimonials-grid">
           {reviews.map((review) => (
             <div className="review-card" key={review.id}>
-              {/* Quote Icon Background */}
               <FaQuoteLeft className="quote-icon" />
               
-              {/* Star Rating */}
               <div className="stars">
                 <FaStar /><FaStar /><FaStar /><FaStar /><FaStar />
               </div>
               
-              {/* Review Text */}
               <p className="review-text">"{review.text}"</p>
               
-              {/* User Info */}
               <div className="review-author">
                 <img src={review.image} alt={review.name} className="author-img" />
                 <div className="author-details">
