@@ -5,26 +5,26 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [packages, setPackages] = useState([]);
+
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [searchId, setSearchId] = useState('');
+
   const [pkgForm, setPkgForm] = useState({
     title: '', type: 'hajj', duration: '', cost: '', features: ''
   });
-
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     fetchUsers();
     fetchBookings();
     fetchPackages(); 
-  }, [API_URL]);
+  }, []);
 
   const getToken = () => localStorage.getItem('pothik_token');
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/admin/users`, {
+      const response = await fetch('http://localhost:5000/api/admin/users', {
         headers: { 'Authorization': `Bearer ${getToken()}` }
       });
       if (response.ok) setUsers(await response.json());
@@ -33,7 +33,7 @@ const AdminDashboard = () => {
 
   const fetchBookings = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/admin/bookings`, {
+      const response = await fetch('http://localhost:5000/api/admin/bookings', {
         headers: { 'Authorization': `Bearer ${getToken()}` }
       });
       if (response.ok) setBookings(await response.json());
@@ -42,7 +42,7 @@ const AdminDashboard = () => {
 
   const fetchPackages = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/packages`);
+      const response = await fetch('http://localhost:5000/api/packages');
       if (response.ok) setPackages(await response.json());
     } catch (err) { console.error(err); }
   };
@@ -50,7 +50,7 @@ const AdminDashboard = () => {
   const fetchPaymentHistory = async (booking) => {
     setSelectedBooking(booking);
     try {
-      const response = await fetch(`${API_URL}/api/admin/payments/${booking.id}`, {
+      const response = await fetch(`http://localhost:5000/api/admin/payments/${booking.id}`, {
         headers: { 'Authorization': `Bearer ${getToken()}` }
       });
       if (response.ok) {
@@ -63,7 +63,7 @@ const AdminDashboard = () => {
     e.preventDefault();
     if (!searchId.trim()) return;
     try {
-      const res = await fetch(`${API_URL}/api/track/${searchId.trim()}`);
+      const res = await fetch(`http://localhost:5000/api/track/${searchId.trim()}`);
       const data = await res.json();
       if (res.ok) {
         fetchPaymentHistory(data);
@@ -76,7 +76,7 @@ const AdminDashboard = () => {
 
   const handleApprove = async (userId) => {
     try {
-      const response = await fetch(`${API_URL}/api/admin/approve-user/${userId}`, { 
+      const response = await fetch(`http://localhost:5000/api/admin/approve-user/${userId}`, { 
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${getToken()}` }
       });
@@ -90,7 +90,7 @@ const AdminDashboard = () => {
   const handleReject = async (userId) => {
     if (!window.confirm("Are you sure you want to reject and delete this registration?")) return;
     try {
-      const response = await fetch(`${API_URL}/api/admin/users/${userId}`, { 
+      const response = await fetch(`http://localhost:5000/api/admin/users/${userId}`, { 
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${getToken()}` }
       });
@@ -101,7 +101,7 @@ const AdminDashboard = () => {
   const handleDeleteBooking = async (bookingId) => {
     if (!window.confirm("Warning: Are you sure you want to completely cancel and remove this active booking? This action cannot be undone.")) return;
     try {
-      const response = await fetch(`${API_URL}/api/admin/bookings/${bookingId}`, { 
+      const response = await fetch(`http://localhost:5000/api/admin/bookings/${bookingId}`, { 
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${getToken()}` }
       });
@@ -116,7 +116,7 @@ const AdminDashboard = () => {
 
   const handleStatusChange = async (bookingId, newStatus) => {
     try {
-      const response = await fetch(`${API_URL}/api/admin/update-booking-status/${bookingId}`, {
+      const response = await fetch(`http://localhost:5000/api/admin/update-booking-status/${bookingId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
         body: JSON.stringify({ status: newStatus })
@@ -136,7 +136,7 @@ const AdminDashboard = () => {
     if (isNaN(amount) || amount <= 0 || amount > remaining) return alert("Invalid amount.");
 
     try {
-      const response = await fetch(`${API_URL}/api/process-payment`, {
+      const response = await fetch('http://localhost:5000/api/process-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
         body: JSON.stringify({ bookingId: booking.id, amount: amount, method: 'Offline Cash' })
@@ -156,7 +156,7 @@ const AdminDashboard = () => {
   const handleCreatePackage = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${API_URL}/api/admin/packages`, {
+      const response = await fetch('http://localhost:5000/api/admin/packages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
         body: JSON.stringify(pkgForm)
@@ -172,7 +172,7 @@ const AdminDashboard = () => {
   const handleDeletePackage = async (pkgId) => {
     if (!window.confirm("Are you sure? This will delete the package from the website.")) return;
     try {
-      const response = await fetch(`${API_URL}/api/admin/packages/${pkgId}`, { 
+      const response = await fetch(`http://localhost:5000/api/admin/packages/${pkgId}`, { 
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${getToken()}` }
       });
@@ -183,6 +183,7 @@ const AdminDashboard = () => {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#f1f5f9' }}>
       
+      {/* MAIN CONTENT AREA (Padding right ensures it doesn't hide behind the fixed sidebar) */}
       <div style={{ flex: 1, padding: '2rem', paddingRight: '380px', width: '100%' }}>
         <h2>Agency Control Center</h2>
         <p style={{ color: '#64748b' }}>Manage your pilgrims, finances, and website packages.</p>

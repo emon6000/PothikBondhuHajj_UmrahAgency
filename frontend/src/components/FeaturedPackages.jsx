@@ -5,14 +5,10 @@ const FeaturedPackages = () => {
   const [featuredPackages, setFeaturedPackages] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // The dynamic API URL logic is placed here at the top of the component
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
-        // Fetch is updated to use the dynamic URL
-        const response = await fetch(`${API_URL}/api/packages`);
+        const response = await fetch('http://localhost:5000/api/packages');
         const data = await response.json();
         
         setFeaturedPackages(data.slice(0, 4));
@@ -23,7 +19,7 @@ const FeaturedPackages = () => {
       }
     };
     fetchFeatured();
-  }, [API_URL]);
+  }, []);
 
   return (
     <section className="packages-section">
