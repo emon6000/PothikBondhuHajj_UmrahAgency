@@ -94,6 +94,7 @@ router.post('/register', async (req, res) => {
         .status(201)
         .json({ message: 'Registration successful! Check your email for next steps.' });
     } catch (emailError) {
+      console.error("NODEMAILER CRASH REPORT:", emailError);
       res.status(201).json({ message: 'Registration successful, but email delivery failed.' });
     }
   } catch (error) {
