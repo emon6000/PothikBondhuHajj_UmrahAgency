@@ -64,8 +64,12 @@ router.put('/approve-user/:id', async (req, res) => {
                 <h3 style="margin: 10px 0 0 0; color: #0f172a; font-size: 24px;">${tracking_id}</h3>
               </div>
               
-              <p style="font-size: 15px; line-height: 1.5;">You can now copy and paste this ID into our website's Track Status portal to safely log your payments and view your visa progress.</p>
-            </div>
+             <p style="font-size: 15px; line-height: 1.5;">
+  You can now copy and paste this ID into our website's Track Status portal here: 
+  <a href="https://pothik-bondhu-hajj-umrah-agency.vercel.app/track" target="_blank" style="color: #064e3b; text-decoration: underline;">https://pothik-bondhu-hajj-umrah-agency.vercel.app/track</a> 
+  to safely log your payments and view your visa progress.
+</p>
+</div>
           `,
         });
         console.log(`✅ Approval email sent to ${email}`);
