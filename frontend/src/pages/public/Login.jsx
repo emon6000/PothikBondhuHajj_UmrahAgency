@@ -1,23 +1,25 @@
 // src/pages/public/Login.jsx
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FaPhoneAlt, FaEnvelope } from 'react-icons/fa';
+import { useState } from 'react';
+import { FaEnvelope, FaPhoneAlt } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ identifier: '', password: '' });
   const navigate = useNavigate();
 
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
-      const response = await fetch('http://localhost:5000/api/login', {
+      const response = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({ 
-          email: credentials.identifier, 
-          password: credentials.password 
-        })
+        body: JSON.stringify({
+          email: credentials.identifier,
+          password: credentials.password,
+        }),
       });
 
       const data = await response.json();
@@ -27,19 +29,18 @@ const Login = () => {
         localStorage.setItem('pothik_user', JSON.stringify(data.user));
 
         alert(`Welcome back, ${data.user.name}!`);
-        
-        if (data.user.role === 'ADMIN') {
-           navigate('/admin-dashboard'); 
-        } else {
-           navigate('/client-dashboard');
-        }
 
+        if (data.user.role === 'ADMIN') {
+          navigate('/admin-dashboard');
+        } else {
+          navigate('/client-dashboard');
+        }
       } else {
         alert(`Error: ${data.error}`);
       }
     } catch (error) {
-      console.error("Login error:", error);
-      alert("Could not connect to the server.");
+      console.error('Login error:', error);
+      alert('Could not connect to the server.');
     }
   };
 
@@ -47,7 +48,6 @@ const Login = () => {
     <section className="auth-section">
       <div className="auth-container">
         <div className="auth-card">
-          
           <div className="auth-image-side">
             <div className="auth-image-overlay">
               <h2>Welcome Back</h2>
@@ -69,7 +69,7 @@ const Login = () => {
                   placeholder="e.g. +880 or email"
                   required
                   value={credentials.identifier}
-                  onChange={(e) => setCredentials({...credentials, identifier: e.target.value})}
+                  onChange={(e) => setCredentials({ ...credentials, identifier: e.target.value })}
                 />
               </div>
 
@@ -80,7 +80,7 @@ const Login = () => {
                   placeholder="••••••••"
                   required
                   value={credentials.password}
-                  onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+                  onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
                 />
               </div>
 
@@ -91,14 +91,18 @@ const Login = () => {
 
             <div className="auth-help-box">
               <p className="help-title">Forgot your password?</p>
-              <p className="help-desc">For security reasons, please contact our helpline to reset your credentials:</p>
+              <p className="help-desc">
+                For security reasons, please contact our helpline to reset your credentials:
+              </p>
               <div className="help-contacts">
-                <span><FaPhoneAlt className="small-icon" /> +880 1234 567 890</span>
-                <span><FaEnvelope className="small-icon" /> info@pothikbondhu.com</span>
+                <span>
+                  <FaPhoneAlt className="small-icon" /> +880 1234 567 890
+                </span>
+                <span>
+                  <FaEnvelope className="small-icon" /> info@pothikbondhu.com
+                </span>
               </div>
             </div>
-
-            
           </div>
         </div>
       </div>

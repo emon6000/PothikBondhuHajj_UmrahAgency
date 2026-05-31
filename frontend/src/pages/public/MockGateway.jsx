@@ -6,6 +6,8 @@ const MockGateway = () => {
   const navigate = useNavigate();
   const [selectedMethod, setSelectedMethod] = useState(null);
 
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
   useEffect(() => {
     if (!document.getElementById('tailwind-cdn')) {
       const script = document.createElement('script');
@@ -22,7 +24,7 @@ const MockGateway = () => {
 
   const handlePaymentSuccess = async (methodName) => {
     try {
-      const response = await fetch('http://localhost:5000/api/process-payment', {
+      const response = await fetch(`${API_URL}/api/process-payment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

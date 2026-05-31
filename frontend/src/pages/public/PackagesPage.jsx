@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import { FaClock, FaMoneyBillWave, FaCalendarAlt } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
+import { FaCalendarAlt, FaClock, FaMoneyBillWave } from 'react-icons/fa';
+import { Link, useLocation } from 'react-router-dom';
 
 const PackagesPage = () => {
   const location = useLocation();
@@ -9,10 +9,12 @@ const PackagesPage = () => {
   const [allPackages, setAllPackages] = useState([]);
   const [filteredPackages, setFilteredPackages] = useState([]);
 
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
   useEffect(() => {
     const fetchLivePackages = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/packages');
+        const response = await fetch(`${API_URL}/api/packages`);
         const data = await response.json();
         setAllPackages(data);
       } catch (error) {

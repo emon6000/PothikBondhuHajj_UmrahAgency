@@ -23,6 +23,8 @@ const Track = () => {
   const [showPaymentInput, setShowPaymentInput] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState('');
 
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
   useEffect(() => {
     if (location.state?.paymentSuccess) {
       const successfulId = location.state.bookingId;
@@ -38,7 +40,7 @@ const Track = () => {
     setLoading(true);
     try {
       const cleanId = idToTrack.trim();
-      const response = await fetch(`http://localhost:5000/api/track/${cleanId}`);
+      const response = await fetch(`${API_URL}/api/track/${cleanId}`);
       const data = await response.json();
       if (response.ok) {
         setBookingData(data);
