@@ -74,6 +74,7 @@ router.post('/register', async (req, res) => {
     const trackingId = newBooking.rows[0].id;
 
     try {
+      console.log("Database insert complete, attempting email send...");
       await transporter.sendMail({
         from: `"Pothik Bondhu Agency" <${process.env.EMAIL_USER}>`,
         to: email,
