@@ -1,7 +1,6 @@
 const express = require('express');
 const pool = require('../config/db');
 const verifyAdmin = require('../middleware/auth');
-const resend = require('../config/mailer'); // Changed variable name here
 
 const router = express.Router();
 
@@ -50,32 +49,45 @@ router.put('/approve-user/:id', async (req, res) => {
       const { name, email, tracking_id } = userData.rows[0];
 
       try {
-        // Updated to use Resend API syntax
-        await resend.emails.send({
-          from: 'Pothik Bondhu Agency <onboarding@resend.dev>',
-          to: email,
-          subject: 'Account Approved - Your Secure Tracking ID',
-          html: `
-            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; border: 1px solid #e2e8f0; border-radius: 10px;">
-              <h2 style="color: #064e3b; border-bottom: 2px solid #fbbf24; padding-bottom: 10px;">Assalamu Alaikum, ${name}!</h2>
-              <p style="font-size: 16px; line-height: 1.5;">Great news! Your registration has been officially approved by the Pothik Bondhu Admin.</p>
-              
-              <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; border-left: 5px solid #064e3b;">
-                <p style="margin: 0; color: #64748b; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Your Secure Tracking ID</p>
-                <h3 style="margin: 10px 0 0 0; color: #0f172a; font-size: 24px;">${tracking_id}</h3>
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: {
+            'accept': 'application/json',
+            'api-key': process.env.BREVO_API_KEY,
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            sender: { name: 'Pothik Bondhu Agency', email: process.env.EMAIL_USER }, 
+            to: [{ email: email }],
+            subject: 'Account Approved - Your Secure Tracking ID',
+            htmlContent: `
+              <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; border: 1px solid #e2e8f0; border-radius: 10px;">
+                <h2 style="color: #064e3b; border-bottom: 2px solid #fbbf24; padding-bottom: 10px;">Assalamu Alaikum, ${name}!</h2>
+                <p style="font-size: 16px; line-height: 1.5;">Great news! Your registration has been officially approved by the Pothik Bondhu Admin.</p>
+                
+                <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; border-left: 5px solid #064e3b;">
+                  <p style="margin: 0; color: #64748b; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Your Secure Tracking ID</p>
+                  <h3 style="margin: 10px 0 0 0; color: #0f172a; font-size: 24px;">${tracking_id}</h3>
+                </div>
+                
+                <p style="font-size: 15px; line-height: 1.5;">
+                  You can now copy and paste this ID into our website's Track Status portal here: 
+                  <a href="https://pothik-bondhu-hajj-umrah-agency.vercel.app/track" target="_blank" style="color: #064e3b; text-decoration: underline;">https://pothik-bondhu-hajj-umrah-agency.vercel.app/track</a> 
+                  to safely log your payments and view your visa progress.
+                </p>
               </div>
-              
-              <p style="font-size: 15px; line-height: 1.5;">
-                You can now copy and paste this ID into our website's Track Status portal here: 
-                <a href="https://pothik-bondhu-hajj-umrah-agency.vercel.app/track" target="_blank" style="color: #064e3b; text-decoration: underline;">https://pothik-bondhu-hajj-umrah-agency.vercel.app/track</a> 
-                to safely log your payments and view your visa progress.
-              </p>
-            </div>
-          `,
+            `
+          })
         });
-        console.log(`✅ Approval email sent to ${email} via Resend`);
+
+        if (!response.ok) {
+           const errorData = await response.json();
+           throw new Error(JSON.stringify(errorData));
+        }
+
+        console.log(`✅ Approval email sent to ${email} via Brevo`);
       } catch (emailErr) {
-        console.error('Failed to send approval email via Resend:', emailErr);
+        console.error('Failed to send approval email via Brevo:', emailErr);
       }
     }
 

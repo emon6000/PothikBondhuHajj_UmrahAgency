@@ -1,6 +1,5 @@
 const express = require('express');
 const pool = require('../config/db');
-const resend = require('../config/mailer');
 
 const router = express.Router();
 
@@ -55,11 +54,11 @@ router.get('/track/:bookingId', async (req, res) => {
 
 // Register a new user and create a booking
 router.post('/register', async (req, res) => {
-  const { name, email, phone, nid, passport, packageId } = req.body;
+  const { name, email, phone, nid, passport, packageId, password } = req.body;
   try {
     const newUserResult = await pool.query(
-      `INSERT INTO users (name, email, phone, nid, passport) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-      [name, email, phone, nid, passport]
+      `INSERT INTO users (name, email, phone, nid, passport, password) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+      [name, email, phone, nid, passport, password]
     );
     const newUserId = newUserResult.rows[0].id;
 
@@ -74,30 +73,42 @@ router.post('/register', async (req, res) => {
     const trackingId = newBooking.rows[0].id;
 
     try {
-      console.log("Database insert complete, attempting email send via Resend...");
+      console.log("Database insert complete, attempting email send via Brevo API...");
       
-      // Updated to use Resend API syntax
-      await resend.emails.send({
-        from: 'Pothik Bondhu Agency <onboarding@resend.dev>',
-        to: email,
-        subject: 'Registration Received - Pothik Bondhu',
-        html: `
-          <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; border: 1px solid #e2e8f0; border-radius: 10px;">
-            <h2 style="color: #064e3b; border-bottom: 2px solid #fbbf24; padding-bottom: 10px;">Assalamu Alaikum, ${name}!</h2>
-            <p style="font-size: 16px; line-height: 1.5;">Your registration request has been successfully received by our system.</p>
-            <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #d97706;">
-              <p style="margin: 0; color: #92400e; font-size: 15px;"><strong>Status: Pending Review</strong></p>
-              <p style="margin: 5px 0 0 0; color: #b45309; font-size: 14px;">Our team is currently verifying your documents. Please wait for admin confirmation.</p>
+      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_API_KEY,
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          sender: { name: 'Pothik Bondhu Agency', email: process.env.EMAIL_USER }, 
+          to: [{ email: email }],
+          subject: 'Registration Received - Pothik Bondhu',
+          htmlContent: `
+            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; border: 1px solid #e2e8f0; border-radius: 10px;">
+              <h2 style="color: #064e3b; border-bottom: 2px solid #fbbf24; padding-bottom: 10px;">Assalamu Alaikum, ${name}!</h2>
+              <p style="font-size: 16px; line-height: 1.5;">Your registration request has been successfully received by our system.</p>
+              <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #d97706;">
+                <p style="margin: 0; color: #92400e; font-size: 15px;"><strong>Status: Pending Review</strong></p>
+                <p style="margin: 5px 0 0 0; color: #b45309; font-size: 14px;">Our team is currently verifying your documents. Please wait for admin confirmation.</p>
+              </div>
+              <p style="font-size: 15px; line-height: 1.5;">Once your profile is approved, we will send you a second email containing your Secure Tracking ID.</p>
             </div>
-            <p style="font-size: 15px; line-height: 1.5;">Once your profile is approved, we will send you a second email containing your Secure Tracking ID.</p>
-          </div>
-        `,
+          `
+        })
       });
+
+      if (!response.ok) {
+         const errorData = await response.json();
+         throw new Error(JSON.stringify(errorData));
+      }
       
-      console.log("Email sent successfully via Resend!");
+      console.log("Email sent successfully via Brevo!");
       res.status(201).json({ message: 'Registration successful! Check your email for next steps.' });
     } catch (emailError) {
-      console.error("RESEND CRASH REPORT:", emailError);
+      console.error("BREVO CRASH REPORT:", emailError);
       res.status(201).json({ message: 'Registration successful, but email delivery failed.' });
     }
   } catch (error) {
