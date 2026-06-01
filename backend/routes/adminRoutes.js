@@ -1,7 +1,7 @@
 const express = require('express');
 const pool = require('../config/db');
 const verifyAdmin = require('../middleware/auth');
-const transporter = require('../config/mailer');
+const resend = require('../config/mailer'); // Changed variable name here
 
 const router = express.Router();
 
@@ -50,8 +50,9 @@ router.put('/approve-user/:id', async (req, res) => {
       const { name, email, tracking_id } = userData.rows[0];
 
       try {
-        await transporter.sendMail({
-          from: `"Pothik Bondhu Agency" <${process.env.EMAIL_USER}>`,
+        // Updated to use Resend API syntax
+        await resend.emails.send({
+          from: 'Pothik Bondhu Agency <onboarding@resend.dev>',
           to: email,
           subject: 'Account Approved - Your Secure Tracking ID',
           html: `
@@ -64,17 +65,17 @@ router.put('/approve-user/:id', async (req, res) => {
                 <h3 style="margin: 10px 0 0 0; color: #0f172a; font-size: 24px;">${tracking_id}</h3>
               </div>
               
-             <p style="font-size: 15px; line-height: 1.5;">
-  You can now copy and paste this ID into our website's Track Status portal here: 
-  <a href="https://pothik-bondhu-hajj-umrah-agency.vercel.app/track" target="_blank" style="color: #064e3b; text-decoration: underline;">https://pothik-bondhu-hajj-umrah-agency.vercel.app/track</a> 
-  to safely log your payments and view your visa progress.
-</p>
-</div>
+              <p style="font-size: 15px; line-height: 1.5;">
+                You can now copy and paste this ID into our website's Track Status portal here: 
+                <a href="https://pothik-bondhu-hajj-umrah-agency.vercel.app/track" target="_blank" style="color: #064e3b; text-decoration: underline;">https://pothik-bondhu-hajj-umrah-agency.vercel.app/track</a> 
+                to safely log your payments and view your visa progress.
+              </p>
+            </div>
           `,
         });
-        console.log(`✅ Approval email sent to ${email}`);
+        console.log(`✅ Approval email sent to ${email} via Resend`);
       } catch (emailErr) {
-        console.error('Failed to send approval email:', emailErr);
+        console.error('Failed to send approval email via Resend:', emailErr);
       }
     }
 

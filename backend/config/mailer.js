@@ -1,25 +1,11 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 require('dotenv').config();
 
-// Debugging check
-if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-  console.error("CRITICAL: EMAIL_USER or EMAIL_PASS is missing in Render settings!");
+// Debugging check to ensure Render reads the key
+if (!process.env.RESEND_API_KEY) {
+  console.error("CRITICAL: RESEND_API_KEY is missing in Render settings!");
 }
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-  // Add these to force the connection to break if it hangs
-  connectionTimeout: 10000, 
-  greetingTimeout: 10000,
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-module.exports = transporter;
+module.exports = resend;

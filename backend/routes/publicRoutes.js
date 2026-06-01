@@ -1,6 +1,6 @@
 const express = require('express');
 const pool = require('../config/db');
-const transporter = require('../config/mailer');
+const resend = require('../config/mailer');
 
 const router = express.Router();
 
@@ -74,9 +74,11 @@ router.post('/register', async (req, res) => {
     const trackingId = newBooking.rows[0].id;
 
     try {
-      console.log("Database insert complete, attempting email send...");
-      await transporter.sendMail({
-        from: `"Pothik Bondhu Agency" <${process.env.EMAIL_USER}>`,
+      console.log("Database insert complete, attempting email send via Resend...");
+      
+      // Updated to use Resend API syntax
+      await resend.emails.send({
+        from: 'Pothik Bondhu Agency <onboarding@resend.dev>',
         to: email,
         subject: 'Registration Received - Pothik Bondhu',
         html: `
@@ -91,11 +93,11 @@ router.post('/register', async (req, res) => {
           </div>
         `,
       });
-      res
-        .status(201)
-        .json({ message: 'Registration successful! Check your email for next steps.' });
+      
+      console.log("Email sent successfully via Resend!");
+      res.status(201).json({ message: 'Registration successful! Check your email for next steps.' });
     } catch (emailError) {
-      console.error("NODEMAILER CRASH REPORT:", emailError);
+      console.error("RESEND CRASH REPORT:", emailError);
       res.status(201).json({ message: 'Registration successful, but email delivery failed.' });
     }
   } catch (error) {
