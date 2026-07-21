@@ -28,8 +28,7 @@ const PrayerTimesBar = () => {
     return () => clearInterval(timer); 
   }, []);
 
-  if (loading) return null;
-  if (!timings) return null;
+  if (loading || !timings) return null;
 
   const formatTime = (time24) => {
     if (!time24) return '';
@@ -64,60 +63,124 @@ const PrayerTimesBar = () => {
     { name: 'Isha', start: timings.Isha, end: timings.Midnight }
   ];
 
+  const renderScheduleItems = () => (
+    <>
+      {schedule.map((waqt, index) => {
+        const isActive = activeWaqt === waqt.name;
+        return (
+          <div key={index} style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '6px',
+            background: isActive ? 'rgba(202, 138, 4, 0.2)' : 'transparent',
+            padding: isActive ? '4px 12px' : '4px 0',
+            borderRadius: '20px',
+            marginRight: '25px', 
+            flexShrink: 0
+          }}>
+            <span style={{ color: isActive ? '#fde047' : '#ca8a04', fontWeight: isActive ? 'bold' : '500', whiteSpace: 'nowrap' }}>
+              {isActive && "▶ "} {waqt.name}:
+            </span>
+            <span style={{ opacity: isActive ? 1 : 0.85, whiteSpace: 'nowrap' }}>
+              {formatTime(waqt.start)} - {formatTime(waqt.end)}
+            </span>
+          </div>
+        );
+      })}
+    </>
+  );
+
   return (
-    <div style={{ 
-      background: '#043b2c', 
-      color: 'white', 
-      padding: '12px 20px', 
-      display: 'flex', 
-      flexWrap: 'wrap', 
-      justifyContent: 'space-between',
-      alignItems: 'center', 
-      gap: '20px', 
-      fontSize: '0.9rem', 
-      fontWeight: '500', 
-      borderTop: '1px solid rgba(255,255,255,0.05)' 
-    }}>
-      
-      <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ca8a04', fontWeight: 'bold' }}>
-          <FaMapMarkerAlt /> DHAKA, BD
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(0,0,0,0.2)', padding: '4px 10px', borderRadius: '15px' }}>
-          <FaClock /> {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', alignItems: 'center' }}>
-        {schedule.map((waqt, index) => {
-          const isActive = activeWaqt === waqt.name;
+    <>
+      <style>
+        {`
+          @keyframes prayerMarquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+          }
+          .marquee-container {
+            display: flex;
+            white-space: nowrap;
+            width: max-content;
+            animation: prayerMarquee 25s linear infinite;
+          }
+          .marquee-container:hover {
+            animation-play-state: paused;
+          }
           
-          return (
-            <div key={index} style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '5px',
-              background: isActive ? 'rgba(202, 138, 4, 0.2)' : 'transparent',
-              padding: isActive ? '4px 10px' : '4px 0',
-              borderRadius: '8px',
-              transition: 'all 0.3s ease'
-            }}>
-              <span style={{ color: isActive ? '#fde047' : '#ca8a04', fontWeight: isActive ? 'bold' : 'normal' }}>
-                {isActive && "▶ "} {waqt.name}:
-              </span>
-              <span style={{ opacity: isActive ? 1 : 0.8 }}>
-                {formatTime(waqt.start)} - {formatTime(waqt.end)}
-              </span>
-              {/* Only show the separator if it's not the last item AND neither this item nor the next item is highlighted */}
-              {index < schedule.length - 1 && !isActive && activeWaqt !== schedule[index+1]?.name && (
-                <span style={{ color: 'rgba(255,255,255,0.15)', marginLeft: '10px' }}>|</span>
-              )}
-            </div>
-          );
-        })}
-      </div>
+          /* RESPONSIVE LAYOUT CLASSES */
+          .prayer-bar-layout {
+            display: flex;
+            flex-direction: column; /* Mobile: Stack vertically */
+            gap: 12px;
+            padding: 12px 20px;
+          }
+          .static-info-group {
+            display: flex;
+            justify-content: space-between; /* Mobile: Location left, Clock right */
+            width: 100%;
+          }
 
-    </div>
+          @media (min-width: 1024px) {
+            .prayer-bar-layout {
+              flex-direction: row; /* Desktop: Side-by-side */
+              align-items: center;
+              justify-content: space-between;
+              padding: 10px 30px;
+            }
+            .static-info-group {
+              width: auto;
+              justify-content: flex-start;
+              padding-right: 20px;
+            }
+            .marquee-wrapper {
+              overflow: hidden !important;
+            }
+            .marquee-container {
+              animation: none !important;
+              width: 100% !important;
+              justify-content: flex-end !important; 
+            }
+            .duplicate-items {
+              display: none !important; 
+            }
+          }
+        `}
+      </style>
+
+      <div className="prayer-bar-layout" style={{ 
+        background: '#043b2c', 
+        color: 'white', 
+        fontSize: '0.9rem', 
+        fontWeight: '500', 
+        borderTop: '1px solid rgba(255,255,255,0.05)',
+        overflow: 'hidden'
+      }}>
+        
+        {/* Static Location and Clock */}
+        <div className="static-info-group" style={{ alignItems: 'center', gap: '15px', flexShrink: 0, zIndex: 2 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#ca8a04', fontWeight: 'bold' }}>
+            <FaMapMarkerAlt /> DHAKA, BD
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(0,0,0,0.2)', padding: '4px 10px', borderRadius: '15px' }}>
+            <FaClock /> {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+          </div>
+        </div>
+
+        {/* Marquee Wrapper */}
+        <div className="marquee-wrapper" style={{ overflow: 'hidden', flexGrow: 1, position: 'relative', display: 'flex', alignItems: 'center', width: '100%' }}>
+          <div className="marquee-container">
+            <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+              {renderScheduleItems()}
+            </div>
+            <div className="duplicate-items" style={{ display: 'inline-flex', alignItems: 'center' }}>
+              {renderScheduleItems()}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </>
   );
 };
 

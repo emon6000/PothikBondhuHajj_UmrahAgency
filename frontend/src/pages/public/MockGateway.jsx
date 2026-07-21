@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const MockGateway = () => {
@@ -7,20 +7,15 @@ const MockGateway = () => {
   const [selectedMethod, setSelectedMethod] = useState(null);
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-  useEffect(() => {
-    if (!document.getElementById('tailwind-cdn')) {
-      const script = document.createElement('script');
-      script.id = 'tailwind-cdn';
-      script.src = 'https://cdn.tailwindcss.com';
-      document.head.appendChild(script);
-    }
-  }, []);
-
   const { bookingId, amount, clientName } = location.state || {};
 
-  if (!bookingId)
-    return <div className="p-12 text-center text-2xl font-bold text-gray-700">Invalid Session</div>;
+  if (!bookingId) {
+    return (
+      <div style={{ padding: '3rem', textAlign: 'center', fontSize: '1.5rem', fontWeight: 'bold', color: '#374151' }}>
+        Invalid Session
+      </div>
+    );
+  }
 
   const handlePaymentSuccess = async (methodName) => {
     try {
@@ -47,8 +42,170 @@ const MockGateway = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 font-sans">
-      <div className="w-full max-w-md">
+    <div className="gw-wrapper">
+      <style>{`
+        .gw-wrapper {
+          min-height: 100vh;
+          background-color: #f3f4f6;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1rem;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          box-sizing: border-box;
+        }
+        
+        .gw-container {
+          width: 100%;
+          max-width: 420px;
+          transition: all 0.3s ease;
+        }
+
+        .gw-card {
+          background: white;
+          border-radius: 1rem;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+          overflow: hidden;
+          border: 1px solid #e5e7eb;
+        }
+
+        /* Method Selection Styles */
+        .gw-select-header { padding: 1.5rem 1.5rem 0.5rem; }
+        .gw-select-title { font-size: 1.125rem; font-weight: 600; color: #111827; margin: 0; }
+        .gw-select-subtitle { font-size: 0.875rem; color: #6b7280; margin: 0.25rem 0 0 0; }
+        
+        .gw-method-group-title {
+          font-size: 0.65rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: #9ca3af;
+          margin: 1.25rem 0 0.5rem 0;
+        }
+        
+        .gw-method-btn {
+          display: flex;
+          width: 100%;
+          align-items: center;
+          gap: 1rem;
+          background: #f9fafb;
+          border: 1px solid #e5e7eb;
+          border-radius: 0.75rem;
+          padding: 0.75rem 1rem;
+          margin-bottom: 0.5rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          text-align: left;
+        }
+        .gw-method-btn:hover {
+          border-color: #3b82f6;
+          background: #eff6ff;
+        }
+        .gw-method-icon-box {
+          width: 4rem;
+          height: 3rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 0.5rem;
+          flex-shrink: 0;
+        }
+        
+        /* Form Flow Styles */
+        .gw-flow-header {
+          padding: 1rem 1.25rem;
+          color: white;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .gw-flow-header-title { font-size: 1.25rem; font-weight: bold; margin: 0; }
+        
+        .gw-flow-subheader {
+          background: #f9fafb;
+          padding: 0.75rem 1.25rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-bottom: 1px solid #f3f4f6;
+          font-size: 0.875rem;
+        }
+        
+        .gw-form-body { padding: 1.5rem 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+        
+        .gw-input {
+          width: 100%;
+          padding: 0.75rem 1rem;
+          border-radius: 0.375rem;
+          border: 1px solid #d1d5db;
+          font-size: 1rem;
+          outline: none;
+          box-sizing: border-box;
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .gw-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+        .gw-input.center { text-align: center; }
+        .gw-input.mono { font-family: monospace; }
+        .gw-input.pin { font-size: 1.5rem; letter-spacing: 0.4em; }
+
+        /* Brand Specific Focus Colors */
+        .bkash-focus:focus { border-color: #e2136e; box-shadow: 0 0 0 2px rgba(226, 19, 110, 0.2); }
+        .nagad-focus:focus { border-color: #ec1c24; box-shadow: 0 0 0 2px rgba(236, 28, 36, 0.2); }
+        .rocket-focus:focus { border-color: #8c3494; box-shadow: 0 0 0 2px rgba(140, 52, 148, 0.2); }
+        .card-focus:focus { border-color: #0a2540; box-shadow: 0 0 0 2px rgba(10, 37, 64, 0.2); }
+
+        .gw-btn-row { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
+        .gw-btn {
+          flex: 1;
+          padding: 0.75rem;
+          border-radius: 0.375rem;
+          font-size: 0.875rem;
+          font-weight: bold;
+          cursor: pointer;
+          border: none;
+          outline: none;
+          transition: opacity 0.2s;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .gw-btn:hover { opacity: 0.9; }
+        .gw-btn-cancel { background: white; border: 1px solid #d1d5db; color: #374151; }
+        .gw-btn-cancel:hover { background: #f3f4f6; }
+        
+        .gw-footer {
+          border-top: 1px solid #e5e7eb;
+          padding: 0.75rem;
+          text-align: center;
+          font-size: 0.65rem;
+          color: #6b7280;
+          background: #f9fafb;
+        }
+
+        .gw-spinner {
+          width: 2.5rem;
+          height: 2.5rem;
+          border: 3px solid rgba(0,0,0,0.1);
+          border-top-color: currentColor;
+          border-radius: 50%;
+          animation: gw-spin 1s linear infinite;
+          margin: 0 auto;
+        }
+
+        @keyframes gw-spin {
+          to { transform: rotate(360deg); }
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 480px) {
+          .gw-select-header, .gw-form-body { padding: 1.25rem 1rem; }
+          .gw-flow-header, .gw-flow-subheader, .gw-footer { padding-left: 1rem; padding-right: 1rem; }
+          .gw-method-icon-box { width: 3.5rem; height: 2.5rem; }
+          .gw-input { font-size: 0.95rem; }
+        }
+      `}</style>
+
+      <div className="gw-container">
         {!selectedMethod && <MethodSelect amount={amount} onSelect={setSelectedMethod} />}
         {selectedMethod === 'bkash' && (
           <BkashFlow
@@ -85,43 +242,24 @@ const MockGateway = () => {
 
 export default MockGateway;
 
+// --- Components ---
 
-const BkashLogo = () => (
-  <div className="font-display text-xl font-bold italic tracking-tight">bKash</div>
-);
-const NagadLogo = () => <div className="font-display text-xl font-bold tracking-tight">Nagad</div>;
-const RocketLogo = () => (
-  <div className="font-display text-xl font-bold tracking-tight">Rocket</div>
+const BkashLogo = () => <div style={{ fontSize: '1.25rem', fontWeight: 'bold', fontStyle: 'italic' }}>bKash</div>;
+const NagadLogo = () => <div style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Nagad</div>;
+const RocketLogo = () => <div style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Rocket</div>;
+const ChevronRight = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2">
+    <path d="M9 6l6 6-6 6" />
+  </svg>
 );
 
 const methods = [
   {
     group: 'Mobile Banking',
     items: [
-      {
-        id: 'bkash',
-        name: 'bKash',
-        desc: 'Pay with your bKash wallet',
-        bg: 'bg-[#e2136e]',
-        text: 'text-white',
-        logo: <BkashLogo />,
-      },
-      {
-        id: 'nagad',
-        name: 'Nagad',
-        desc: 'Instant transfer via Nagad',
-        bg: 'bg-[#ec1c24]',
-        text: 'text-white',
-        logo: <NagadLogo />,
-      },
-      {
-        id: 'rocket',
-        name: 'Rocket',
-        desc: 'Dutch-Bangla Mobile Banking',
-        bg: 'bg-[#8c3494]',
-        text: 'text-white',
-        logo: <RocketLogo />,
-      },
+      { id: 'bkash', name: 'bKash', desc: 'Pay with your bKash wallet', bg: '#e2136e', color: 'white', logo: <BkashLogo /> },
+      { id: 'nagad', name: 'Nagad', desc: 'Instant transfer via Nagad', bg: '#ec1c24', color: 'white', logo: <NagadLogo /> },
+      { id: 'rocket', name: 'Rocket', desc: 'Dutch-Bangla Mobile Banking', bg: '#8c3494', color: 'white', logo: <RocketLogo /> },
     ],
   },
   {
@@ -131,17 +269,11 @@ const methods = [
         id: 'card',
         name: 'Credit / Debit Card',
         desc: 'Visa · Mastercard · Amex',
-        bg: 'bg-gray-800',
-        text: 'text-white',
+        bg: '#1f2937',
+        color: 'white',
         logo: (
-          <div className="flex items-center gap-1.5">
-            <span className="rounded bg-[#1a1f71] px-1.5 py-0.5 text-[10px] font-bold italic text-white">
-              VISA
-            </span>
-            <span className="flex items-center -space-x-1.5">
-              <span className="h-4 w-4 rounded-full bg-[#eb001b]" />
-              <span className="h-4 w-4 rounded-full bg-[#f79e1b] mix-blend-multiply" />
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ background: '#1a1f71', padding: '2px 4px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold', fontStyle: 'italic', color: 'white' }}>VISA</span>
           </div>
         ),
       },
@@ -151,52 +283,36 @@ const methods = [
 
 function MethodSelect({ onSelect, amount }) {
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-2xl">
-      <h2 className="font-display text-lg font-semibold text-gray-900">Select payment method</h2>
-      <p className="mt-1 text-sm text-gray-500">
-        Pay ৳ {amount.toLocaleString()} using your preferred option.
-      </p>
+    <div className="gw-card">
+      <div className="gw-select-header">
+        <h2 className="gw-select-title">Select payment method</h2>
+        <p className="gw-select-subtitle">Pay ৳ {amount.toLocaleString()} using your preferred option.</p>
+      </div>
 
-      <div className="mt-6 space-y-6">
+      <div style={{ padding: '0 1.5rem 1.5rem' }}>
         {methods.map((g) => (
           <div key={g.group}>
-            <p className="mb-3 text-xs font-medium uppercase tracking-wider text-gray-400">
-              {g.group}
-            </p>
-            <div className="space-y-2.5">
+            <p className="gw-method-group-title">{g.group}</p>
+            <div>
               {g.items.map((m) => (
-                <button
-                  key={m.id}
-                  onClick={() => onSelect(m.id)}
-                  className="group flex w-full items-center gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4 text-left transition-all hover:border-blue-500 hover:bg-blue-50"
-                >
-                  <div
-                    className={`grid h-12 w-20 flex-shrink-0 place-items-center rounded-lg ${m.bg} ${m.text}`}
-                  >
+                <button key={m.id} onClick={() => onSelect(m.id)} className="gw-method-btn">
+                  <div className="gw-method-icon-box" style={{ background: m.bg, color: m.color }}>
                     {m.logo}
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">{m.name}</p>
-                    <p className="text-xs text-gray-500">{m.desc}</p>
+                  <div style={{ flex: 1, overflow: 'hidden' }}>
+                    <p style={{ margin: 0, fontWeight: 500, color: '#111827', fontSize: '0.95rem' }}>{m.name}</p>
+                    <p style={{ margin: 0, color: '#6b7280', fontSize: '0.75rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.desc}</p>
                   </div>
-                  <svg
-                    className="h-5 w-5 text-gray-400 transition-transform group-hover:translate-x-1"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M9 6l6 6-6 6" />
-                  </svg>
+                  <ChevronRight />
                 </button>
               ))}
             </div>
           </div>
         ))}
+        <p style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.7rem', color: '#9ca3af' }}>
+          🔒 Your information is encrypted and secure
+        </p>
       </div>
-      <p className="mt-6 text-center text-xs text-gray-400">
-        🔒 Your information is encrypted and secure
-      </p>
     </div>
   );
 }
@@ -219,102 +335,53 @@ function BkashFlow({ amount, onSuccess, onCancel }) {
   };
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white text-gray-900 shadow-2xl">
-      <div className="bg-[#e2136e] px-5 py-4 text-white">
-        <div className="flex items-center justify-between">
-          <div className="font-display text-2xl font-bold italic">bKash</div>
-          <div className="text-right text-xs">
-            <div className="opacity-80">Merchant</div>
-            <div className="font-semibold">Pothik Bondhu</div>
-          </div>
+    <div className="gw-card">
+      <div className="gw-flow-header" style={{ background: '#e2136e' }}>
+        <div className="gw-flow-header-title" style={{ fontStyle: 'italic' }}>bKash</div>
+        <div style={{ textAlign: 'right', fontSize: '0.7rem' }}>
+          <div style={{ opacity: 0.8 }}>Merchant</div>
+          <div style={{ fontWeight: 600 }}>Pothik Bondhu</div>
         </div>
       </div>
-      <div className="bg-[#f9f9f9] px-5 py-3 text-center text-sm border-b border-gray-100">
-        <span className="text-gray-600">Amount: </span>
-        <span className="font-bold text-[#e2136e]">৳ {amount.toLocaleString()}.00</span>
-        <span className="ml-2 text-gray-600">| Invoice: </span>
-        <span className="font-mono text-xs">{txnId}</span>
+      <div className="gw-flow-subheader">
+        <div><span style={{ color: '#6b7280' }}>Amount: </span><span style={{ fontWeight: 'bold', color: '#e2136e' }}>৳ {amount.toLocaleString()}.00</span></div>
+        <div style={{ fontFamily: 'monospace', color: '#9ca3af', fontSize: '0.7rem' }}>Ref: {txnId}</div>
       </div>
 
-      <form onSubmit={next} className="space-y-4 px-6 py-7">
+      <form onSubmit={next} className="gw-form-body">
         {step === 'number' && (
           <>
-            <p className="text-center text-sm text-gray-600">Your bKash Account Number</p>
-            <input
-              autoFocus
-              required
-              value={phone}
-              onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
-              placeholder="01XXXXXXXXX"
-              className="w-full rounded-md border border-gray-300 px-4 py-3 text-center text-lg font-mono tracking-wider outline-none focus:border-[#e2136e] focus:ring-2 focus:ring-[#e2136e]/20"
-            />
-            <p className="text-center text-xs text-gray-500">
-              By clicking Confirm, you are agreeing to the{' '}
-              <span className="text-[#e2136e]">terms & conditions</span>
-            </p>
+            <p style={{ margin: 0, textAlign: 'center', fontSize: '0.875rem', color: '#4b5563' }}>Your bKash Account Number</p>
+            <input autoFocus required value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 11))} placeholder="01XXXXXXXXX" className="gw-input bkash-focus center mono" />
           </>
         )}
         {step === 'otp' && (
           <>
-            <p className="text-center text-sm text-gray-600">
-              Enter the verification code sent to
-              <br />
-              <span className="font-semibold text-gray-900">{phone}</span>
-            </p>
-            <input
-              autoFocus
-              required
-              value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              placeholder="6-digit code"
-              className="w-full rounded-md border border-gray-300 px-4 py-3 text-center text-2xl font-mono tracking-[0.5em] outline-none focus:border-[#e2136e] focus:ring-2 focus:ring-[#e2136e]/20"
-            />
-            <p className="text-center text-xs text-gray-500">
-              Didn't receive? <span className="text-[#e2136e]">Resend</span>
-            </p>
+            <p style={{ margin: 0, textAlign: 'center', fontSize: '0.875rem', color: '#4b5563' }}>Enter verification code sent to <br/><b style={{ color: '#111827'}}>{phone}</b></p>
+            <input autoFocus required value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="6-digit" className="gw-input bkash-focus center mono pin" />
           </>
         )}
         {step === 'pin' && (
           <>
-            <p className="text-center text-sm text-gray-600">Enter your bKash PIN</p>
-            <input
-              autoFocus
-              required
-              type="password"
-              value={pin}
-              onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 5))}
-              placeholder="• • • • •"
-              className="w-full rounded-md border border-gray-300 px-4 py-3 text-center text-2xl font-mono tracking-[0.5em] outline-none focus:border-[#e2136e] focus:ring-2 focus:ring-[#e2136e]/20"
-            />
+            <p style={{ margin: 0, textAlign: 'center', fontSize: '0.875rem', color: '#4b5563' }}>Enter your bKash PIN</p>
+            <input autoFocus required type="password" value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 5))} placeholder="•••••" className="gw-input bkash-focus center mono pin" />
           </>
         )}
         {step === 'processing' && (
-          <div className="py-8 text-center">
-            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[#e2136e]/20 border-t-[#e2136e]" />
-            <p className="mt-4 text-sm text-gray-600">Processing your payment…</p>
-            <p className="mt-1 text-xs text-gray-400">Do not close this window</p>
+          <div style={{ padding: '2rem 0', textAlign: 'center' }}>
+            <div className="gw-spinner" style={{ color: '#e2136e' }} />
+            <p style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#4b5563' }}>Processing your payment…</p>
           </div>
         )}
         {step !== 'processing' && (
-          <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              Close
-            </button>
-            <button
-              type="submit"
-              className="flex-1 rounded-md bg-[#e2136e] px-4 py-3 text-sm font-bold text-white hover:bg-[#c11160]"
-            >
-              {step === 'pin' ? 'Confirm' : 'Proceed'}
-            </button>
+          <div className="gw-btn-row">
+            <button type="button" onClick={onCancel} className="gw-btn gw-btn-cancel">Close</button>
+            <button type="submit" className="gw-btn" style={{ background: '#e2136e', color: 'white' }}>{step === 'pin' ? 'Confirm' : 'Proceed'}</button>
           </div>
         )}
       </form>
-      <div className="border-t border-gray-200 bg-[#f9f9f9] px-5 py-3 text-center text-[10px] text-gray-500">
-        Powered by <span className="font-semibold text-[#e2136e]">bKash</span> · 16247
+      <div className="gw-footer" style={{ background: '#fdf2f8' }}>
+        Powered by <strong style={{ color: '#e2136e' }}>bKash</strong> · 16247
       </div>
     </div>
   );
@@ -336,95 +403,55 @@ function NagadFlow({ amount, onSuccess, onCancel }) {
   };
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white text-gray-900 shadow-2xl">
-      <div
-        className="px-5 py-5 text-white"
-        style={{ background: 'linear-gradient(135deg, #ec1c24 0%, #f5841f 100%)' }}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="font-display text-2xl font-bold">Nagad</div>
-            <div className="text-[10px] uppercase tracking-widest opacity-90">Cashless Future</div>
-          </div>
-          <div className="text-right text-xs">
-            <div className="opacity-90">Pay to</div>
-            <div className="font-semibold">Pothik Bondhu</div>
-          </div>
+    <div className="gw-card">
+      <div className="gw-flow-header" style={{ background: 'linear-gradient(135deg, #ec1c24 0%, #f5841f 100%)' }}>
+        <div>
+          <div className="gw-flow-header-title">Nagad</div>
+          <div style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.9 }}>Cashless Future</div>
+        </div>
+        <div style={{ textAlign: 'right', fontSize: '0.7rem' }}>
+          <div style={{ opacity: 0.9 }}>Pay to</div>
+          <div style={{ fontWeight: 600 }}>Pothik Bondhu</div>
         </div>
       </div>
-      <div className="bg-orange-50 px-5 py-3 text-center text-sm border-b border-orange-100">
-        <span className="text-gray-700">Total: </span>
-        <span className="font-bold text-[#ec1c24]">৳ {amount.toLocaleString()}.00</span>
+      <div className="gw-flow-subheader" style={{ background: '#fff7ed' }}>
+        <div style={{ textAlign: 'center', width: '100%' }}>
+          <span style={{ color: '#4b5563' }}>Total: </span>
+          <span style={{ fontWeight: 'bold', color: '#ec1c24' }}>৳ {amount.toLocaleString()}.00</span>
+        </div>
       </div>
-      <form onSubmit={next} className="space-y-4 px-6 py-7">
+
+      <form onSubmit={next} className="gw-form-body">
         {step === 'number' && (
           <>
-            <label className="block text-sm font-medium text-gray-700">
-              Your Nagad Account Number
-            </label>
-            <div className="flex items-center overflow-hidden rounded-md border border-gray-300 focus-within:border-[#ec1c24] focus-within:ring-2 focus-within:ring-[#ec1c24]/20">
-              <span className="bg-gray-100 px-3 py-3 text-sm text-gray-500">+880</span>
-              <input
-                autoFocus
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
-                placeholder="1XXXXXXXXX"
-                className="flex-1 px-3 py-3 font-mono outline-none"
-              />
+            <label style={{ fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>Your Nagad Account Number</label>
+            <div style={{ display: 'flex', border: '1px solid #d1d5db', borderRadius: '0.375rem', overflow: 'hidden' }} className="nagad-focus-wrapper">
+              <span style={{ background: '#f3f4f6', padding: '0.75rem', color: '#6b7280', fontSize: '0.9rem', borderRight: '1px solid #d1d5db' }}>+880</span>
+              <input autoFocus required value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 11))} placeholder="1XXXXXXXXX" style={{ flex: 1, border: 'none', padding: '0.75rem', outline: 'none', fontFamily: 'monospace', fontSize: '1rem' }} />
             </div>
-            <p className="text-xs text-gray-500">
-              By proceeding, you accept Nagad's{' '}
-              <span className="text-[#ec1c24]">terms of service</span>.
-            </p>
           </>
         )}
         {step === 'pin' && (
           <>
-            <p className="text-center text-sm text-gray-700">
-              Enter your 4-digit Nagad PIN
-              <br />
-              <span className="text-xs text-gray-500">for {phone}</span>
-            </p>
-            <input
-              autoFocus
-              required
-              type="password"
-              value={pin}
-              onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              placeholder="••••"
-              className="w-full rounded-md border border-gray-300 px-4 py-3 text-center text-2xl font-mono tracking-[0.5em] outline-none focus:border-[#ec1c24] focus:ring-2 focus:ring-[#ec1c24]/20"
-            />
-            <p className="text-center font-mono text-[10px] text-gray-400">Txn: {txnId}</p>
+            <p style={{ margin: 0, textAlign: 'center', fontSize: '0.875rem', color: '#4b5563' }}>Enter your 4-digit Nagad PIN <br/><span style={{ fontSize: '0.7rem', color: '#6b7280' }}>for {phone}</span></p>
+            <input autoFocus required type="password" value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="••••" className="gw-input nagad-focus center mono pin" />
           </>
         )}
         {step === 'processing' && (
-          <div className="py-8 text-center">
-            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[#ec1c24]/20 border-t-[#ec1c24]" />
-            <p className="mt-4 text-sm text-gray-600">Confirming payment with Nagad…</p>
+          <div style={{ padding: '2rem 0', textAlign: 'center' }}>
+            <div className="gw-spinner" style={{ color: '#ec1c24' }} />
+            <p style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#4b5563' }}>Confirming payment…</p>
           </div>
         )}
         {step !== 'processing' && (
-          <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 rounded-md px-4 py-3 text-sm font-bold text-white shadow-md hover:opacity-90"
-              style={{ background: 'linear-gradient(135deg, #ec1c24, #f5841f)' }}
-            >
-              {step === 'pin' ? 'Pay Now' : 'Next'}
-            </button>
+          <div className="gw-btn-row">
+            <button type="button" onClick={onCancel} className="gw-btn gw-btn-cancel">Cancel</button>
+            <button type="submit" className="gw-btn" style={{ background: 'linear-gradient(135deg, #ec1c24, #f5841f)', color: 'white' }}>{step === 'pin' ? 'Pay Now' : 'Next'}</button>
           </div>
         )}
       </form>
-      <div className="border-t border-gray-200 bg-orange-50/50 px-5 py-3 text-center text-[10px] text-gray-500">
-        Powered by <span className="font-semibold text-[#ec1c24]">Nagad</span> · Helpline 16167
+      <div className="gw-footer" style={{ background: '#fff7ed' }}>
+        Powered by <strong style={{ color: '#ec1c24' }}>Nagad</strong> · Helpline 16167
       </div>
     </div>
   );
@@ -445,108 +472,65 @@ function RocketFlow({ amount, onSuccess, onCancel }) {
   };
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white text-gray-900 shadow-2xl">
-      <div
-        className="px-5 py-5 text-white"
-        style={{ background: 'linear-gradient(135deg, #8c3494, #5e2470)' }}
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="font-display text-2xl font-bold">Rocket</div>
-            <div className="text-[10px] uppercase tracking-widest opacity-90">
-              Dutch-Bangla Mobile Banking
-            </div>
-          </div>
-          <div className="text-right text-xs">
-            <div className="opacity-90">Merchant</div>
-            <div className="font-semibold">Pothik Bondhu</div>
-          </div>
+    <div className="gw-card">
+      <div className="gw-flow-header" style={{ background: 'linear-gradient(135deg, #8c3494, #5e2470)' }}>
+        <div>
+          <div className="gw-flow-header-title">Rocket</div>
+          <div style={{ fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.9 }}>DBBL Mobile Banking</div>
+        </div>
+        <div style={{ textAlign: 'right', fontSize: '0.7rem' }}>
+          <div style={{ opacity: 0.9 }}>Merchant</div>
+          <div style={{ fontWeight: 600 }}>Pothik Bondhu</div>
         </div>
       </div>
-      <div className="bg-purple-50 px-5 py-3 text-center text-sm border-b border-purple-100">
-        <span className="text-gray-700">Amount: </span>
-        <span className="font-bold text-[#8c3494]">৳ {amount.toLocaleString()}.00</span>
+      <div className="gw-flow-subheader" style={{ background: '#faf5ff' }}>
+        <div style={{ textAlign: 'center', width: '100%' }}>
+          <span style={{ color: '#4b5563' }}>Amount: </span>
+          <span style={{ fontWeight: 'bold', color: '#8c3494' }}>৳ {amount.toLocaleString()}.00</span>
+        </div>
       </div>
-      <form onSubmit={next} className="space-y-4 px-6 py-7">
+
+      <form onSubmit={next} className="gw-form-body">
         {step === 'number' && (
           <>
-            <label className="block text-sm font-medium text-gray-700">Rocket Account Number</label>
-            <input
-              autoFocus
-              required
-              value={phone}
-              onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 12))}
-              placeholder="01XXXXXXXXX"
-              className="w-full rounded-md border border-gray-300 px-4 py-3 font-mono outline-none focus:border-[#8c3494] focus:ring-2 focus:ring-[#8c3494]/20"
-            />
-            <p className="text-xs text-gray-500">
-              Includes the trailing checksum digit (e.g. 017XXXXXXXX1).
-            </p>
+            <label style={{ fontSize: '0.875rem', fontWeight: 500, color: '#374151' }}>Rocket Account Number</label>
+            <input autoFocus required value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 12))} placeholder="01XXXXXXXXX" className="gw-input rocket-focus mono" />
+            <p style={{ margin: 0, fontSize: '0.7rem', color: '#6b7280' }}>Includes the trailing digit (e.g. 017XXXXXXXX1).</p>
           </>
         )}
         {step === 'pin' && (
           <>
-            <p className="text-center text-sm text-gray-700">Enter your 4-digit Rocket PIN</p>
-            <input
-              autoFocus
-              required
-              type="password"
-              value={pin}
-              onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-              placeholder="••••"
-              className="w-full rounded-md border border-gray-300 px-4 py-3 text-center text-2xl font-mono tracking-[0.5em] outline-none focus:border-[#8c3494] focus:ring-2 focus:ring-[#8c3494]/20"
-            />
+            <p style={{ margin: 0, textAlign: 'center', fontSize: '0.875rem', color: '#4b5563' }}>Enter your 4-digit Rocket PIN</p>
+            <input autoFocus required type="password" value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="••••" className="gw-input rocket-focus center mono pin" />
           </>
         )}
         {step === 'processing' && (
-          <div className="py-8 text-center">
-            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[#8c3494]/20 border-t-[#8c3494]" />
-            <p className="mt-4 text-sm text-gray-600">Authorizing with Rocket…</p>
+          <div style={{ padding: '2rem 0', textAlign: 'center' }}>
+            <div className="gw-spinner" style={{ color: '#8c3494' }} />
+            <p style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#4b5563' }}>Authorizing with Rocket…</p>
           </div>
         )}
         {step !== 'processing' && (
-          <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 rounded-md bg-[#8c3494] px-4 py-3 text-sm font-bold text-white hover:bg-[#7a2d82]"
-            >
-              {step === 'pin' ? 'Confirm' : 'Next'}
-            </button>
+          <div className="gw-btn-row">
+            <button type="button" onClick={onCancel} className="gw-btn gw-btn-cancel">Cancel</button>
+            <button type="submit" className="gw-btn" style={{ background: '#8c3494', color: 'white' }}>{step === 'pin' ? 'Confirm' : 'Next'}</button>
           </div>
         )}
       </form>
-      <div className="border-t border-gray-200 bg-purple-50/40 px-5 py-3 text-center text-[10px] text-gray-500">
-        Powered by <span className="font-semibold text-[#8c3494]">Rocket</span> · DBBL 16216
+      <div className="gw-footer" style={{ background: '#faf5ff' }}>
+        Powered by <strong style={{ color: '#8c3494' }}>Rocket</strong> · DBBL 16216
       </div>
     </div>
   );
 }
 
-function formatCard(v) {
-  return v
-    .replace(/\D/g, '')
-    .slice(0, 16)
-    .replace(/(.{4})/g, '$1 ')
-    .trim();
-}
-
-function formatExp(v) {
-  const d = v.replace(/\D/g, '').slice(0, 4);
-  return d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d;
-}
+function formatCard(v) { return v.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim(); }
+function formatExp(v) { const d = v.replace(/\D/g, '').slice(0, 4); return d.length > 2 ? `${d.slice(0, 2)}/${d.slice(2)}` : d; }
 
 function CardFlow({ amount, onSuccess, onCancel }) {
-  const [type, setType] = useState('credit');
-  const [card, setCard] = useState('4242 4242 4242 4242');
-  const [exp, setExp] = useState('12/28');
-  const [cvc, setCvc] = useState('123');
+  const [card, setCard] = useState('');
+  const [exp, setExp] = useState('');
+  const [cvc, setCvc] = useState('');
   const [name, setName] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState('form');
@@ -561,144 +545,71 @@ function CardFlow({ amount, onSuccess, onCancel }) {
   };
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white text-gray-900 shadow-2xl">
-      <div className="bg-[#0a2540] px-5 py-4 text-white">
-        <div className="flex items-center justify-between">
-          <div className="font-display text-lg font-semibold">Card Payment</div>
-          <div className="flex items-center gap-2">
-            <span className="rounded bg-[#1a1f71] px-2 py-1 text-[10px] font-bold italic">
-              VISA
-            </span>
-            <span className="flex items-center -space-x-1.5">
-              <span className="h-5 w-5 rounded-full bg-[#eb001b]" />
-              <span className="h-5 w-5 rounded-full bg-[#f79e1b] mix-blend-multiply" />
-            </span>
-          </div>
+    <div className="gw-card">
+      <div className="gw-flow-header" style={{ background: '#0a2540' }}>
+        <div className="gw-flow-header-title" style={{ fontSize: '1.1rem' }}>Card Payment</div>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+           <span style={{ background: '#1a1f71', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold', fontStyle: 'italic', color: 'white' }}>VISA</span>
         </div>
       </div>
-      <div className="bg-blue-50 px-5 py-3 text-center text-sm border-b border-blue-100">
-        <span className="text-gray-700">Amount: </span>
-        <span className="font-bold text-[#0a2540]">৳ {amount.toLocaleString()}.00</span>
+      <div className="gw-flow-subheader" style={{ background: '#eff6ff' }}>
+        <div style={{ textAlign: 'center', width: '100%' }}>
+          <span style={{ color: '#4b5563' }}>Amount: </span>
+          <span style={{ fontWeight: 'bold', color: '#0a2540' }}>৳ {amount.toLocaleString()}.00</span>
+        </div>
       </div>
-      <form onSubmit={submit} className="space-y-4 px-6 py-6">
+      <form onSubmit={submit} className="gw-form-body">
         {step === 'form' && (
           <>
-            <div className="flex gap-2 rounded-lg bg-gray-100 p-1">
-              {['credit', 'debit'].map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setType(t)}
-                  className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium capitalize ${type === t ? 'bg-white text-[#0a2540] shadow-sm' : 'text-gray-500'}`}
-                >
-                  {t} card
-                </button>
-              ))}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 500, color: '#4b5563', marginBottom: '4px' }}>Card Number</label>
+              <input required value={card} onChange={(e) => setCard(formatCard(e.target.value))} inputMode="numeric" placeholder="1234 5678 9012 3456" className="gw-input card-focus mono" />
             </div>
-            <Field label="Card Number">
-              <input
-                required
-                value={card}
-                onChange={(e) => setCard(formatCard(e.target.value))}
-                inputMode="numeric"
-                placeholder="1234 5678 9012 3456"
-                className="w-full rounded-md border border-gray-300 px-4 py-2 font-mono outline-none focus:border-[#0a2540] focus:ring-2 focus:ring-[#0a2540]/20"
-              />
-            </Field>
-            <Field label="Cardholder Name">
-              <input
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="As shown on card"
-                className="w-full rounded-md border border-gray-300 px-4 py-2 outline-none focus:border-[#0a2540] focus:ring-2 focus:ring-[#0a2540]/20"
-              />
-            </Field>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Expiry">
-                <input
-                  required
-                  value={exp}
-                  onChange={(e) => setExp(formatExp(e.target.value))}
-                  placeholder="MM/YY"
-                  className="w-full rounded-md border border-gray-300 px-4 py-2 font-mono outline-none focus:border-[#0a2540] focus:ring-2 focus:ring-[#0a2540]/20"
-                />
-              </Field>
-              <Field label="CVC">
-                <input
-                  required
-                  type="password"
-                  value={cvc}
-                  onChange={(e) => setCvc(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                  placeholder="•••"
-                  className="w-full rounded-md border border-gray-300 px-4 py-2 font-mono outline-none focus:border-[#0a2540] focus:ring-2 focus:ring-[#0a2540]/20"
-                />
-              </Field>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 500, color: '#4b5563', marginBottom: '4px' }}>Cardholder Name</label>
+              <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="As shown on card" className="gw-input card-focus" />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 500, color: '#4b5563', marginBottom: '4px' }}>Expiry</label>
+                <input required value={exp} onChange={(e) => setExp(formatExp(e.target.value))} placeholder="MM/YY" className="gw-input card-focus mono" />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 500, color: '#4b5563', marginBottom: '4px' }}>CVC</label>
+                <input required type="password" value={cvc} onChange={(e) => setCvc(e.target.value.replace(/\D/g, '').slice(0, 4))} placeholder="•••" className="gw-input card-focus mono" />
+              </div>
             </div>
           </>
         )}
         {step === 'otp' && (
-          <div className="rounded-lg border border-blue-200 bg-blue-50/60 p-5">
-            <div className="mb-3 flex items-center gap-2">
-              <div className="grid h-8 w-8 place-items-center rounded bg-[#0a2540] text-xs font-bold text-white">
-                3DS
-              </div>
+          <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '0.5rem', padding: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+              <div style={{ width: '2rem', height: '2rem', background: '#0a2540', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold' }}>3DS</div>
               <div>
-                <p className="text-sm font-semibold">3D Secure Verification</p>
-                <p className="text-xs text-gray-500">Issued by your bank</p>
+                <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: 600 }}>3D Secure</p>
+                <p style={{ margin: 0, fontSize: '0.7rem', color: '#6b7280' }}>Issued by bank</p>
               </div>
             </div>
-            <p className="text-sm text-gray-700">
-              An OTP has been sent to your registered mobile number ending in{' '}
-              <span className="font-mono font-bold">••{card.slice(-2)}</span>.
-            </p>
-            <input
-              autoFocus
-              required
-              value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              placeholder="Enter 6-digit OTP"
-              className="mt-3 w-full rounded-md border border-gray-300 px-4 py-3 text-center text-xl font-mono tracking-[0.4em] outline-none focus:border-[#0a2540] focus:ring-2 focus:ring-[#0a2540]/20"
-            />
+            <p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', color: '#374151' }}>OTP sent to mobile ending in <strong style={{ fontFamily: 'monospace' }}>••{card.length > 2 ? card.slice(-2) : 'XX'}</strong>.</p>
+            <input autoFocus required value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="6-digit OTP" className="gw-input card-focus center mono pin" />
           </div>
         )}
         {step === 'processing' && (
-          <div className="py-8 text-center">
-            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[#0a2540]/20 border-t-[#0a2540]" />
-            <p className="mt-4 text-sm text-gray-600">Authorizing your card…</p>
-            <p className="mt-1 text-xs text-gray-400">Please do not refresh</p>
+          <div style={{ padding: '2rem 0', textAlign: 'center' }}>
+            <div className="gw-spinner" style={{ color: '#0a2540' }} />
+            <p style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#4b5563' }}>Authorizing card…</p>
           </div>
         )}
         {step !== 'processing' && (
-          <div className="flex gap-3 pt-1">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 rounded-md bg-[#0a2540] px-4 py-3 text-sm font-bold text-white hover:bg-[#0e2f50]"
-            >
-              {step === 'otp' ? `Pay ৳ ${amount.toLocaleString()}` : 'Continue'}
-            </button>
+          <div className="gw-btn-row">
+            <button type="button" onClick={onCancel} className="gw-btn gw-btn-cancel">Cancel</button>
+            <button type="submit" className="gw-btn" style={{ background: '#0a2540', color: 'white' }}>{step === 'otp' ? `Pay ৳ ${amount.toLocaleString()}` : 'Continue'}</button>
           </div>
         )}
       </form>
-      <div className="border-t border-gray-200 bg-gray-50 px-5 py-3 text-center text-[10px] text-gray-500">
+      <div className="gw-footer">
         🔒 Secured with 256-bit SSL · PCI-DSS compliant
       </div>
     </div>
-  );
-}
-
-function Field({ label, children }) {
-  return (
-    <label className="block">
-      <span className="mb-1 block text-xs font-medium text-gray-600">{label}</span>
-      {children}
-    </label>
   );
 }

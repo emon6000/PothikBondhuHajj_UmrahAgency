@@ -62,14 +62,16 @@ const Track = () => {
   };
 
   const handleInitiatePayment = () => {
-    const remaining = bookingData.total_cost - bookingData.amount_paid;
+    // FIX: Force numeric conversion
+    const remaining = Number(bookingData.total_cost) - Number(bookingData.amount_paid);
     setPaymentAmount(remaining.toString());
     setShowPaymentInput(true);
   };
 
   const handleRedirectToGateway = () => {
     const amount = parseInt(paymentAmount);
-    const remaining = bookingData.total_cost - bookingData.amount_paid;
+    // FIX: Force numeric conversion
+    const remaining = Number(bookingData.total_cost) - Number(bookingData.amount_paid);
     if (!amount || amount <= 0) return alert('Please enter a valid amount.');
     if (amount > remaining) return alert(`Maximum allowed payment is ${remaining} BDT.`);
     navigate('/secure-gateway', {
@@ -101,6 +103,99 @@ const Track = () => {
         background: '#f8fafc',
       }}
     >
+      {/* INTERNAL CSS FOR MOBILE RESPONSIVENESS */}
+      <style>{`
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 768px) {
+          /* 1. Fix the main layout padding */
+          .dashboard-layout {
+            padding: 2rem 1rem !important;
+          }
+          
+          .dashboard-main {
+            padding: 1.5rem 1rem !important;
+            border-radius: 12px !important;
+          }
+
+          /* 2. Fix the Search Form (Stack it) */
+          .search-form {
+            flex-direction: column;
+            padding: 15px !important;
+            border-radius: 15px !important;
+          }
+          
+          .search-form input {
+            width: 100% !important;
+            box-sizing: border-box;
+            padding: 15px !important;
+          }
+
+          .search-form button {
+            width: 100% !important;
+            justify-content: center;
+            padding: 12px 0 !important;
+            border-radius: 10px !important;
+          }
+
+          /* 3. Fix the Profile Header */
+          .dashboard-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 15px !important;
+          }
+          
+          .dashboard-header h1 {
+            font-size: 1.5rem !important;
+          }
+
+          /* 4. Fix Financial Cards (Stack them and reduce padding) */
+          .financial-card {
+            min-width: 100% !important;
+            padding: 1.25rem !important;
+            text-align: center;
+          }
+
+          .financial-card h3 {
+            font-size: 1.6rem !important;
+          }
+
+          /* 5. Fix the Payment Box */
+          .payment-box {
+            padding: 1.5rem 1rem !important;
+          }
+
+          .payment-box button {
+            padding: 12px 20px !important;
+            font-size: 1rem !important;
+            width: 100%;
+            justify-content: center;
+          }
+
+          .payment-actions {
+            flex-direction: column;
+            gap: 10px !important;
+          }
+
+          /* 6. Fix the Stepper Container so it stops squishing text */
+          .stepper-container {
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          
+          .step-content h4 {
+            font-size: 1rem !important;
+          }
+          
+          .step-content p {
+            font-size: 0.85rem !important;
+            line-height: 1.3 !important;
+          }
+        }
+      `}</style>
+
       <div style={{ textAlign: 'center', maxWidth: '600px', width: '100%', marginBottom: '3rem' }}>
         <h2 style={{ fontSize: '2.2rem', color: '#064e3b', marginBottom: '10px' }}>
           Track Your Journey
@@ -109,6 +204,7 @@ const Track = () => {
           Enter your Secure Tracking ID below.
         </p>
         <form
+          className="search-form"
           onSubmit={handleTrackSubmit}
           style={{
             display: 'flex',
@@ -186,6 +282,7 @@ const Track = () => {
             boxShadow: '0 15px 35px rgba(0,0,0,0.05)',
             padding: '3rem',
             borderTop: '6px solid #064e3b',
+            boxSizing: 'border-box',
           }}
         >
           <header
@@ -240,6 +337,7 @@ const Track = () => {
           <div style={{ marginBottom: '3rem' }}>
             <div style={{ display: 'flex', gap: '20px', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
               <div
+                className="financial-card"
                 style={{
                   flex: '1',
                   minWidth: '200px',
@@ -247,6 +345,7 @@ const Track = () => {
                   padding: '2rem',
                   borderRadius: '15px',
                   border: '1px solid #e2e8f0',
+                  boxSizing: 'border-box',
                 }}
               >
                 <p
@@ -261,12 +360,14 @@ const Track = () => {
                 >
                   Amount Paid
                 </p>
+                {/* FIX: Force numeric conversion for display */}
                 <h3 style={{ margin: 0, fontSize: '2rem', color: '#16a34a' }}>
-                  {bookingData.amount_paid.toLocaleString()}{' '}
+                  {Number(bookingData.amount_paid).toLocaleString()}{' '}
                   <span style={{ fontSize: '1rem', color: '#64748b' }}>BDT</span>
                 </h3>
               </div>
               <div
+                className="financial-card"
                 style={{
                   flex: '1',
                   minWidth: '200px',
@@ -274,6 +375,7 @@ const Track = () => {
                   padding: '2rem',
                   borderRadius: '15px',
                   border: '1px solid #e2e8f0',
+                  boxSizing: 'border-box',
                 }}
               >
                 <p
@@ -288,15 +390,18 @@ const Track = () => {
                 >
                   Total Cost
                 </p>
+                {/* FIX: Force numeric conversion for display */}
                 <h3 style={{ margin: 0, fontSize: '2rem', color: '#0f172a' }}>
-                  {bookingData.total_cost.toLocaleString()}{' '}
+                  {Number(bookingData.total_cost).toLocaleString()}{' '}
                   <span style={{ fontSize: '1rem', color: '#64748b' }}>BDT</span>
                 </h3>
               </div>
             </div>
 
-            {bookingData.amount_paid < bookingData.total_cost ? (
+            {/* FIX: Force numeric comparison */}
+            {Number(bookingData.amount_paid) < Number(bookingData.total_cost) ? (
               <div
+                className="payment-box"
                 style={{
                   background: 'white',
                   padding: '2.5rem',
@@ -314,7 +419,8 @@ const Track = () => {
                     <p style={{ color: '#64748b', marginBottom: '2rem', fontSize: '1rem' }}>
                       Remaining Balance:{' '}
                       <strong style={{ color: '#d97706' }}>
-                        {(bookingData.total_cost - bookingData.amount_paid).toLocaleString()} BDT
+                        {/* FIX: Force numeric conversion */}
+                        {(Number(bookingData.total_cost) - Number(bookingData.amount_paid)).toLocaleString()} BDT
                       </strong>
                     </p>
                     <button
@@ -349,6 +455,7 @@ const Track = () => {
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         marginBottom: '10px',
+                        flexWrap: 'wrap',
                       }}
                     >
                       <label style={{ fontSize: '0.95rem', fontWeight: 'bold', color: '#334155' }}>
@@ -356,7 +463,8 @@ const Track = () => {
                       </label>
                       <span style={{ fontSize: '0.85rem', color: '#64748b' }}>
                         Remaining:{' '}
-                        {(bookingData.total_cost - bookingData.amount_paid).toLocaleString()}
+                        {/* FIX: Force numeric conversion */}
+                        {(Number(bookingData.total_cost) - Number(bookingData.amount_paid)).toLocaleString()}
                       </span>
                     </div>
                     <input
@@ -376,7 +484,7 @@ const Track = () => {
                         boxSizing: 'border-box',
                       }}
                     />
-                    <div style={{ display: 'flex', gap: '15px' }}>
+                    <div className="payment-actions" style={{ display: 'flex', gap: '15px' }}>
                       <button
                         onClick={() => setShowPaymentInput(false)}
                         style={{
@@ -511,11 +619,6 @@ const Track = () => {
           </section>
         </main>
       )}
-
-      <style>{`
-        .fade-in { animation: fadeIn 0.4s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-      `}</style>
     </div>
   );
 };
