@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaChevronDown, FaSearchLocation, FaBars, FaTimes } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import logo from '../assets/logo.png';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { t, i18n } = useTranslation(); 
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'en' ? 'bn' : 'en';
+    i18n.changeLanguage(newLang);
   };
 
   return (
@@ -19,34 +26,32 @@ const Navbar = () => {
           }
 
           @media (max-width: 768px) {
-            /* Switch to CSS Grid to strictly prevent the hamburger from wrapping */
             .main-navbar {
-              display: grid !important;
-              grid-template-columns: 1fr auto auto;
+              display: flex !important;
+              justify-content: space-between;
               align-items: center;
               padding: 10px 15px !important;
-              gap: 10px;
             }
             
             .navbar-brand {
-              grid-column: 1;
               display: flex;
               align-items: center;
-              overflow: hidden; /* Prevent long text from blowing out the layout */
             }
 
+            /* HIDE BRAND TEXT ON MOBILE TO SAVE SPACE */
             .brand-text {
-              font-size: 1.1rem !important; /* Slightly smaller for mobile */
-              white-space: nowrap;
+              display: none !important; 
             }
 
             .navbar-actions {
-              grid-column: 2;
-              margin: 0 !important; /* Clear any conflicting margins */
+              display: flex;
+              align-items: center;
+              gap: 8px !important;
+              margin-left: auto;
+              margin-right: 15px;
             }
 
             .mobile-menu-btn {
-              grid-column: 3;
               display: block !important;
               background: none;
               border: none;
@@ -57,7 +62,6 @@ const Navbar = () => {
             }
 
             .nav-content-wrapper {
-              grid-column: 1 / -1; /* Span the entire bottom row */
               width: 100%;
               display: ${isMobileMenuOpen ? 'flex' : 'none'} !important;
               flex-direction: column;
@@ -65,6 +69,7 @@ const Navbar = () => {
               gap: 15px;
               border-top: 1px solid #e2e8f0;
               padding-top: 15px;
+              order: 4;
             }
 
             .navbar-links {
@@ -105,23 +110,19 @@ const Navbar = () => {
             }
           }
 
-          /* Hide "Status" on very tiny screens like iPhone SE */
           @media (max-width: 380px) {
             .track-text-hide {
               display: none;
-            }
-            .brand-text {
-              font-size: 1rem !important;
             }
           }
         `}
       </style>
 
-      <nav className="main-navbar">
+      <nav className="main-navbar" style={{ flexWrap: 'wrap' }}>
         <div className="navbar-brand">
           <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
             <img src={logo} alt="Pothik Bondhu Logo" className="logo-img" />
-            <span className="brand-text">Pothik Bondhu</span>
+            <span className="brand-text">{t('navbar.brand')}</span>
           </Link>
         </div>
 
@@ -129,39 +130,55 @@ const Navbar = () => {
           <ul className="navbar-links">
             <li className="dropdown">
               <Link to="/packages?type=hajj" className="dropbtn">
-                Hajj <FaChevronDown className="dropdown-icon" />
+                {t('navbar.hajj')} <FaChevronDown className="dropdown-icon" />
               </Link>
               <div className="dropdown-content">
-                <Link to="/hajj/pre-registration" onClick={() => setIsMobileMenuOpen(false)}>Pre-registration</Link>
-                <Link to="/visa-requirements?type=hajj" onClick={() => setIsMobileMenuOpen(false)}>Visa Requirements</Link>
-                <Link to="/packages?type=hajj" onClick={() => setIsMobileMenuOpen(false)}>Hajj Packages</Link>
+                <Link to="/hajj/pre-registration" onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.hajjPreReg')}</Link>
+                <Link to="/visa-requirements?type=hajj" onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.hajjVisa')}</Link>
+                <Link to="/packages?type=hajj" onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.hajjPackages')}</Link>
               </div>
             </li>
 
             <li className="dropdown">
               <Link to="/packages?type=umrah" className="dropbtn">
-                Umrah <FaChevronDown className="dropdown-icon" />
+                {t('navbar.umrah')} <FaChevronDown className="dropdown-icon" />
               </Link>
               <div className="dropdown-content">
-                <Link to="/visa-requirements?type=umrah" onClick={() => setIsMobileMenuOpen(false)}>Visa Requirements</Link>
-                <Link to="/packages?type=umrah" onClick={() => setIsMobileMenuOpen(false)}>Umrah Packages</Link>
+                <Link to="/visa-requirements?type=umrah" onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.umrahVisa')}</Link>
+                <Link to="/packages?type=umrah" onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.umrahPackages')}</Link>
               </div>
             </li>
 
             <li className="dropdown">
               <Link to="/about" className="dropbtn">
-                About <FaChevronDown className="dropdown-icon" />
+                {t('navbar.about')} <FaChevronDown className="dropdown-icon" />
               </Link>
               <div className="dropdown-content">
-                <Link to="/about" onClick={() => setIsMobileMenuOpen(false)}>About Us</Link>
-                <Link to="/agents" onClick={() => setIsMobileMenuOpen(false)}>Agents</Link>
-                <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)}>Contacts</Link>
+                <Link to="/about" onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.aboutUs')}</Link>
+                <Link to="/agents" onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.agents')}</Link>
+                <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)}>{t('navbar.contacts')}</Link>
               </div>
             </li>
           </ul>
         </div>
 
         <div className="navbar-actions">
+          <button 
+            onClick={toggleLanguage}
+            style={{ 
+              background: 'transparent',
+              color: '#064e3b',
+              border: '1px solid #064e3b',
+              cursor: 'pointer',
+              padding: '6px 10px',
+              borderRadius: '6px',
+              fontWeight: 'bold',
+              fontSize: '0.9rem'
+            }}
+          >
+            {i18n.language === 'en' ? 'বাংলা' : 'EN'}
+          </button>
+
           <Link 
             to="/track" 
             className="login-btn" 
@@ -181,7 +198,7 @@ const Navbar = () => {
             }}
           >
             <FaSearchLocation /> 
-            <span>Track <span className="track-text-hide">Status</span></span>
+            <span>{t('navbar.track')} <span className="track-text-hide">{t('navbar.status')}</span></span>
           </Link>
         </div>
 

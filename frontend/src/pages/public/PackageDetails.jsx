@@ -4,10 +4,12 @@ import {
   FaCheckCircle,
 } from 'react-icons/fa';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const PackageDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   const [pkg, setPkg] = useState(null);
   const [services, setServices] = useState([]);
@@ -18,13 +20,11 @@ const PackageDetails = () => {
   useEffect(() => {
     const fetchPackageDetails = async () => {
       try {
-        // 1. Fetch Package Main Details
         const response = await fetch(`${API_URL}/api/packages`);
         const data = await response.json();
         const foundPackage = data.find((p) => p.id === id);
         setPkg(foundPackage);
 
-        // 2. Fetch Dynamic Services (Inclusions/Exclusions from Junction Table)
         const servicesRes = await fetch(`${API_URL}/api/packages/${id}/services`);
         if (servicesRes.ok) {
           const servicesData = await servicesRes.json();
@@ -39,41 +39,24 @@ const PackageDetails = () => {
     fetchPackageDetails();
   }, [id, API_URL]);
 
-  // Smart dynamic itinerary generator reading LIVE database services
   const generateItinerary = (durationStr, type, servicesArray = []) => {
     if (!durationStr) return [];
 
     const totalDays = parseInt(durationStr.match(/\d+/)?.[0] || '7', 10);
     const isHajj = type?.toLowerCase().includes('hajj');
-
-    // Extract included services directly from your Neon DB data
     const included = servicesArray.filter(s => s.is_included).map(s => s.service_name);
     
-    // Dynamic text injections based on database features
-    const flightType = included.includes('Direct Flight (Biman/Saudia)') 
-      ? 'Direct flight via Biman/Saudia' 
-      : 'Transit flight';
-      
-    const hotelType = included.includes('5-Star Hotel in Makkah & Madinah') 
-      ? '5-Star luxury hotel check-in' 
-      : '3-Star hotel check-in';
-      
-    const transportType = included.includes('VIP AC Bus Transfers')
-      ? 'VIP AC Bus transfer'
-      : 'Standard AC transport';
+    const flightType = included.includes('Direct Flight (Biman/Saudia)') ? 'Direct flight via Biman/Saudia' : 'Transit flight';
+    const hotelType = included.includes('5-Star Hotel in Makkah & Madinah') ? '5-Star luxury hotel check-in' : '3-Star hotel check-in';
+    const transportType = included.includes('VIP AC Bus Transfers') ? 'VIP AC Bus transfer' : 'Standard AC transport';
 
     const hasZiyarah = included.includes('Guided Ziyarah (Historical Sites)');
-    const ziyarahDesc = hasZiyarah 
-      ? 'Participate in guided Ziyarah (historical tours) of Makkah and Madinah with our experts.' 
-      : 'Spend your days engaging in continuous worship and personal prayers at the Harams.';
+    const ziyarahDesc = hasZiyarah ? 'Participate in guided Ziyarah (historical tours) of Makkah and Madinah with our experts.' : 'Spend your days engaging in continuous worship and personal prayers at the Harams.';
 
     const hasScholar = included.includes('Dedicated Islamic Scholar (Moallem)');
-    const scholarDesc = hasScholar 
-      ? 'under the continuous guidance of our dedicated Islamic Scholar.' 
-      : 'with assistance from our experienced Moallem.';
+    const scholarDesc = hasScholar ? 'under the continuous guidance of our dedicated Islamic Scholar.' : 'with assistance from our experienced Moallem.';
 
     if (!isHajj) {
-      // UMRAH PACKAGES
       return [
         { day: 'Day 1', desc: `Departure from Dhaka. ${flightType} to KSA. Arrival and ${transportType} to your hotel. ${hotelType}.` },
         { day: `Day 2-${Math.floor(totalDays / 2)}`, desc: `Perform main Umrah rituals ${scholarDesc} ${ziyarahDesc}` },
@@ -81,7 +64,6 @@ const PackageDetails = () => {
         { day: `Day ${totalDays}`, desc: `Final prayers, hotel check-out, and ${transportType} to the airport for your return flight to Dhaka.` }
       ];
     } else {
-      // HAJJ PACKAGES
       return [
         { day: 'Day 1', desc: `Departure from Hazrat Shahjalal International Airport. ${flightType} to KSA. ${hotelType} in Makkah.` },
         { day: 'Day 2-7', desc: `Perform initial Umrah. Rest and prepare for Hajj rituals ${scholarDesc}` },
@@ -94,160 +76,48 @@ const PackageDetails = () => {
   };
 
   if (loading) {
-    return <div style={{ padding: '100px', textAlign: 'center', color: '#064e3b', fontWeight: 'bold' }}>Loading package details...</div>;
+    return <div style={{ padding: '100px', textAlign: 'center', color: '#064e3b', fontWeight: 'bold' }}>{t('packageDetails.loading')}</div>;
   }
 
   if (!pkg) {
     return (
       <div style={{ padding: '100px', textAlign: 'center' }}>
-        <h2>Package not found</h2>
-        <button onClick={() => navigate('/packages')} style={{ marginTop: '15px', padding: '10px 20px', background: '#064e3b', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Back to Packages</button>
+        <h2>{t('packageDetails.notFound')}</h2>
+        <button onClick={() => navigate('/packages')} style={{ marginTop: '15px', padding: '10px 20px', background: '#064e3b', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>{t('packageDetails.back')}</button>
       </div>
     );
   }
 
-  // Generate itinerary passing the dynamic services array
   const dynamicItinerary = generateItinerary(pkg.duration, pkg.type, services);
 
   return (
     <>
       <style>{`
         @media (max-width: 768px) {
-          .package-details-page {
-            padding: 10px !important;
-          }
-          
-          .details-top-bar {
-            padding: 10px 0 !important;
-          }
-
-          .details-hero {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 20px !important;
-            background: white;
-            padding: 15px !important;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-          }
-
-          .details-hero-image {
-            width: 100% !important;
-            height: 200px !important;
-            overflow: hidden;
-            border-radius: 8px;
-            position: relative;
-          }
-
-          .details-hero-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-
-          .details-hero-info {
-            width: 100% !important;
-            padding: 0 !important;
-          }
-
-          .details-hero-info h1 {
-            font-size: 1.4rem !important;
-            line-height: 1.2 !important;
-            margin-bottom: 8px !important;
-          }
-
-          .details-duration {
-            font-size: 0.9rem !important;
-            margin-bottom: 12px !important;
-          }
-
-          .details-price-box {
-            padding: 12px !important;
-            margin-bottom: 15px !important;
-          }
-
-          .price-amount {
-            font-size: 1.6rem !important;
-          }
-
-          .book-now-large-btn {
-            width: 100% !important;
-            display: block !important;
-            text-align: center !important;
-            padding: 14px !important;
-            font-size: 1rem !important;
-            box-sizing: border-box;
-          }
-
-          .details-content-grid {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 20px !important;
-            margin-top: 20px !important;
-          }
-
-          .info-section {
-            background: white;
-            padding: 15px !important;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-            margin-bottom: 0 !important;
-          }
-
-          .info-section h3 {
-            font-size: 1.1rem !important;
-            margin-bottom: 12px !important;
-          }
-
-          .inclusions-grid {
-            display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
-            gap: 10px !important;
-          }
-
-          .inclusion-item {
-            font-size: 0.85rem !important;
-            gap: 8px !important;
-          }
-
-          .itinerary-list li {
-            font-size: 0.85rem !important;
-            margin-bottom: 10px !important;
-            line-height: 1.4 !important;
-          }
-
-          .details-sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-          }
-
-          .sidebar-card, .sidebar-contact {
-            background: white;
-            padding: 15px !important;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-          }
-
-          .sidebar-card h3 {
-            font-size: 1.1rem !important;
-          }
-
-          .notes-list li {
-            font-size: 0.85rem !important;
-          }
-
-          .sidebar-contact h4 {
-            font-size: 1.1rem !important;
-          }
-
-          .sidebar-contact p {
-            font-size: 0.85rem !important;
-          }
-
-          .contact-number {
-            font-size: 1.1rem !important;
-          }
+          .package-details-page { padding: 10px !important; }
+          .details-top-bar { padding: 10px 0 !important; }
+          .details-hero { display: flex !important; flex-direction: column !important; gap: 20px !important; background: white; padding: 15px !important; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+          .details-hero-image { width: 100% !important; height: 200px !important; overflow: hidden; border-radius: 8px; position: relative; }
+          .details-hero-image img { width: 100%; height: 100%; object-fit: cover; }
+          .details-hero-info { width: 100% !important; padding: 0 !important; }
+          .details-hero-info h1 { font-size: 1.4rem !important; line-height: 1.2 !important; margin-bottom: 8px !important; }
+          .details-duration { font-size: 0.9rem !important; margin-bottom: 12px !important; }
+          .details-price-box { padding: 12px !important; margin-bottom: 15px !important; }
+          .price-amount { font-size: 1.6rem !important; }
+          .book-now-large-btn { width: 100% !important; display: block !important; text-align: center !important; padding: 14px !important; font-size: 1rem !important; box-sizing: border-box; }
+          .details-content-grid { display: flex !important; flex-direction: column !important; gap: 20px !important; margin-top: 20px !important; }
+          .info-section { background: white; padding: 15px !important; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-bottom: 0 !important; }
+          .info-section h3 { font-size: 1.1rem !important; margin-bottom: 12px !important; }
+          .inclusions-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+          .inclusion-item { font-size: 0.85rem !important; gap: 8px !important; }
+          .itinerary-list li { font-size: 0.85rem !important; margin-bottom: 10px !important; line-height: 1.4 !important; }
+          .details-sidebar { display: flex; flex-direction: column; gap: 20px; }
+          .sidebar-card, .sidebar-contact { background: white; padding: 15px !important; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+          .sidebar-card h3 { font-size: 1.1rem !important; }
+          .notes-list li { font-size: 0.85rem !important; }
+          .sidebar-contact h4 { font-size: 1.1rem !important; }
+          .sidebar-contact p { font-size: 0.85rem !important; }
+          .contact-number { font-size: 1.1rem !important; }
         }
       `}</style>
 
@@ -256,29 +126,15 @@ const PackageDetails = () => {
           <button
             className="back-btn"
             onClick={() => navigate(-1)}
-            style={{
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              background: 'none',
-              border: 'none',
-              color: '#064e3b',
-              fontWeight: 'bold',
-              fontSize: '1rem'
-            }}
+            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', color: '#064e3b', fontWeight: 'bold', fontSize: '1rem' }}
           >
-            <FaArrowLeft /> Back to Packages
+            <FaArrowLeft /> {t('packageDetails.back')}
           </button>
         </div>
 
         <div className="details-hero" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '30px', background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.04)', alignItems: 'center' }}>
           <div className="details-hero-image" style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', height: '320px' }}>
-            <img
-              src={pkg.image || 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=1200'}
-              alt={pkg.title}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
+            <img src={pkg.image || 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=1200'} alt={pkg.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             <div className="type-badge" style={{ position: 'absolute', top: '15px', left: '15px', background: '#064e3b', color: 'white', padding: '6px 14px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase' }}>
               {pkg.type}
             </div>
@@ -287,68 +143,46 @@ const PackageDetails = () => {
           <div className="details-hero-info">
             <h1 style={{ fontSize: '2rem', color: '#0f172a', marginBottom: '10px' }}>{pkg.title}</h1>
             <p className="details-duration" style={{ color: '#64748b', marginBottom: '1.5rem', fontSize: '1rem' }}>
-              Total Duration: <strong style={{ color: '#064e3b' }}>{pkg.duration}</strong>
+              {t('packageDetails.duration')}: <strong style={{ color: '#064e3b' }}>{pkg.duration}</strong>
             </p>
             <div className="details-price-box" style={{ background: '#f8fafc', padding: '15px 20px', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '1.5rem' }}>
-              <span className="price-label" style={{ display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 'bold' }}>Starting from</span>
+              <span className="price-label" style={{ display: 'block', fontSize: '0.75rem', textTransform: 'uppercase', color: '#64748b', fontWeight: 'bold' }}>{t('packageDetails.startingFrom')}</span>
               <h2 className="price-amount" style={{ margin: '4px 0', fontSize: '2.2rem', color: '#16a34a' }}>
                 {pkg.cost ? Number(pkg.cost).toLocaleString() : '0'} <span style={{ fontSize: '1rem', color: '#64748b' }}>BDT</span>
               </h2>
-              <span className="price-suffix" style={{ fontSize: '0.8rem', color: '#64748b' }}>/ Per Person</span>
+              <span className="price-suffix" style={{ fontSize: '0.8rem', color: '#64748b' }}>{t('packageDetails.perPerson')}</span>
             </div>
 
             <Link to="/register" state={{ selectedPackageId: pkg.id }} className="book-now-large-btn" style={{ display: 'inline-block', background: '#064e3b', color: 'white', padding: '14px 30px', borderRadius: '50px', textDecoration: 'none', fontWeight: 'bold', textAlign: 'center', boxShadow: '0 4px 15px rgba(6,78,59,0.2)' }}>
-              Proceed to Pre-Registration
+              {t('packageDetails.bookBtn')}
             </Link>
             <p className="guarantee-text" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#16a34a', marginTop: '12px', fontSize: '0.9rem', fontWeight: '500' }}>
-              <FaCheckCircle /> Authorized Hajj & Umrah Agency
+              <FaCheckCircle /> {t('packageDetails.authorized')}
             </p>
           </div>
         </div>
 
         <div className="details-content-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px', marginTop: '30px' }}>
           <div className="details-main-content">
-            
             <section className="info-section" style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.04)', marginBottom: '25px' }}>
-              <h3 style={{ fontSize: '1.3rem', color: '#0f172a', marginBottom: '1.25rem' }}>Package Inclusions & Exclusions</h3>
+              <h3 style={{ fontSize: '1.3rem', color: '#0f172a', marginBottom: '1.25rem' }}>{t('packageDetails.inclusionsTitle')}</h3>
               
               {services.length === 0 ? (
-                <p style={{ color: '#64748b', fontStyle: 'italic' }}>Loading dynamic services...</p>
+                <p style={{ color: '#64748b', fontStyle: 'italic' }}>{t('packageDetails.loadingServices')}</p>
               ) : (
                 <div className="inclusions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
                   {services.map((item, index) => (
-                    <div 
-                      key={index} 
-                      className="inclusion-item" 
-                      style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '10px', 
-                        padding: '12px',
-                        borderRadius: '8px',
-                        background: item.is_included ? '#ecfdf5' : '#fff1f2',
-                        border: `1px solid ${item.is_included ? '#d1fae5' : '#ffe4e6'}`,
-                        opacity: item.is_included ? 1 : 0.7
-                      }}
-                    >
+                    <div key={index} className="inclusion-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', borderRadius: '8px', background: item.is_included ? '#ecfdf5' : '#fff1f2', border: `1px solid ${item.is_included ? '#d1fae5' : '#ffe4e6'}`, opacity: item.is_included ? 1 : 0.7 }}>
                       {item.is_included ? (
                         <FaCheckCircle style={{ color: '#059669', flexShrink: 0, fontSize: '1.1rem' }} />
                       ) : (
                         <span style={{ color: '#e11d48', flexShrink: 0, fontWeight: 'bold', fontSize: '1.1rem' }}>✕</span>
                       )}
-                      
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ 
-                          color: item.is_included ? '#064e3b' : '#9f1239', 
-                          fontWeight: '600',
-                          fontSize: '0.95rem',
-                          textDecoration: item.is_included ? 'none' : 'line-through'
-                        }}>
+                        <span style={{ color: item.is_included ? '#064e3b' : '#9f1239', fontWeight: '600', fontSize: '0.95rem', textDecoration: item.is_included ? 'none' : 'line-through' }}>
                           {item.service_name}
                         </span>
-                        <span style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>
-                          {item.category}
-                        </span>
+                        <span style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>{item.category}</span>
                       </div>
                     </div>
                   ))}
@@ -357,7 +191,7 @@ const PackageDetails = () => {
             </section>
 
             <section className="info-section" style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.04)' }}>
-              <h3 style={{ fontSize: '1.3rem', color: '#0f172a', marginBottom: '1.25rem' }}>Sample Itinerary Overview ({pkg.duration})</h3>
+              <h3 style={{ fontSize: '1.3rem', color: '#0f172a', marginBottom: '1.25rem' }}>{t('packageDetails.itineraryTitle')} ({pkg.duration})</h3>
               <ul className="itinerary-list" style={{ paddingLeft: '20px', color: '#475569' }}>
                 {dynamicItinerary.map((item, index) => (
                   <li key={index} style={{ marginBottom: '12px', lineHeight: '1.6' }}>
@@ -370,17 +204,17 @@ const PackageDetails = () => {
 
           <div className="details-sidebar" style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
             <div className="sidebar-card" style={{ background: 'white', padding: '1.5rem', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.04)' }}>
-              <h3 style={{ fontSize: '1.2rem', color: '#0f172a', marginBottom: '1rem' }}>Important Notes</h3>
+              <h3 style={{ fontSize: '1.2rem', color: '#0f172a', marginBottom: '1rem' }}>{t('packageDetails.notesTitle')}</h3>
               <ul className="notes-list" style={{ paddingLeft: '18px', color: '#64748b', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                <li style={{ marginBottom: '8px' }}>Prices are subject to change based on airline ticket availability.</li>
-                <li style={{ marginBottom: '8px' }}>Hotel distances are calculated from the outer courtyard of the Harams.</li>
-                <li>Please ensure your passport is valid for at least 6 months.</li>
+                <li style={{ marginBottom: '8px' }}>{t('packageDetails.n1')}</li>
+                <li style={{ marginBottom: '8px' }}>{t('packageDetails.n2')}</li>
+                <li>{t('packageDetails.n3')}</li>
               </ul>
             </div>
 
             <div className="sidebar-contact" style={{ background: '#064e3b', color: 'white', padding: '1.5rem', borderRadius: '16px', boxShadow: '0 10px 25px rgba(6,78,59,0.15)' }}>
-              <h4 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#fde047' }}>Need Customization?</h4>
-              <p style={{ fontSize: '0.9rem', opacity: '0.9', marginBottom: '15px', lineHeight: '1.4' }}>Call our branch for a customized itinerary tailored to your family's needs.</p>
+              <h4 style={{ fontSize: '1.2rem', marginBottom: '8px', color: '#fde047' }}>{t('packageDetails.customTitle')}</h4>
+              <p style={{ fontSize: '0.9rem', opacity: '0.9', marginBottom: '15px', lineHeight: '1.4' }}>{t('packageDetails.customDesc')}</p>
               <p className="contact-number" style={{ fontSize: '1.2rem', fontWeight: 'bold', margin: 0, color: 'white' }}>+880 1733 391 826</p>
             </div>
           </div>

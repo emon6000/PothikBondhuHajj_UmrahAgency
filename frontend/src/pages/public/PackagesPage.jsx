@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { FaCalendarAlt, FaClock, FaMoneyBillWave } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const PackagesPage = () => {
   const location = useLocation();
+  const { t } = useTranslation();
   const [activeFilter, setActiveFilter] = useState('all');
 
   const [allPackages, setAllPackages] = useState([]);
@@ -22,18 +24,18 @@ const PackagesPage = () => {
       }
     };
     fetchLivePackages();
-  }, []);
+  }, [API_URL]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const type = params.get('type');
-
     if (type === 'hajj' || type === 'umrah') {
       setActiveFilter(type);
     } else {
       setActiveFilter('all');
     }
   }, [location]);
+
   useEffect(() => {
     if (activeFilter === 'all') {
       setFilteredPackages(allPackages);
@@ -47,51 +49,32 @@ const PackagesPage = () => {
       <div className="explorer-header">
         <h2>
           {activeFilter === 'hajj'
-            ? 'Exclusive Hajj Packages'
+            ? t('packagesPage.hajjTitle')
             : activeFilter === 'umrah'
-              ? 'Premium Umrah Packages'
-              : 'All Spiritual Journeys'}
+              ? t('packagesPage.umrahTitle')
+              : t('packagesPage.allTitle')}
         </h2>
-        <p>
-          Browse our meticulously planned itineraries tailored for your comfort and peace of mind.
-        </p>
+        <p>{t('packagesPage.subtitle')}</p>
       </div>
 
       <div className="explorer-filters">
-        <button
-          className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
-          onClick={() => setActiveFilter('all')}
-        >
-          View All
+        <button className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`} onClick={() => setActiveFilter('all')}>
+          {t('packagesPage.viewAll')}
         </button>
-        <button
-          className={`filter-btn ${activeFilter === 'hajj' ? 'active' : ''}`}
-          onClick={() => setActiveFilter('hajj')}
-        >
-          Hajj Only
+        <button className={`filter-btn ${activeFilter === 'hajj' ? 'active' : ''}`} onClick={() => setActiveFilter('hajj')}>
+          {t('packagesPage.hajjOnly')}
         </button>
-        <button
-          className={`filter-btn ${activeFilter === 'umrah' ? 'active' : ''}`}
-          onClick={() => setActiveFilter('umrah')}
-        >
-          Umrah Only
+        <button className={`filter-btn ${activeFilter === 'umrah' ? 'active' : ''}`} onClick={() => setActiveFilter('umrah')}>
+          {t('packagesPage.umrahOnly')}
         </button>
       </div>
 
-      {/* Packages Grid */}
       <div className="explorer-grid">
         {filteredPackages.length > 0 ? (
           filteredPackages.map((pkg) => (
             <div className="explorer-card fade-in" key={pkg.id}>
               <div className="card-image-box">
-                {/* Fallback image used in case the database doesn't have an image column yet */}
-                <img
-                  src={
-                    pkg.image ||
-                    'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800'
-                  }
-                  alt={pkg.title}
-                />
+                <img src={pkg.image || 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=800'} alt={pkg.title} />
                 <span className={`pkg-type-badge ${pkg.type}`}>{pkg.type.toUpperCase()}</span>
               </div>
 
@@ -100,31 +83,25 @@ const PackagesPage = () => {
 
                 <div className="pkg-details-list">
                   <p>
-                    <FaClock className="detail-icon" /> <strong>Duration:</strong> {pkg.duration}
+                    <FaClock className="detail-icon" /> <strong>{t('packagesPage.duration')}:</strong> {pkg.duration}
                   </p>
                   <p>
-                    <FaMoneyBillWave className="detail-icon" /> <strong>Price:</strong>{' '}
-                    {/* Database uses 'cost' instead of 'price', formatted nicely */}
+                    <FaMoneyBillWave className="detail-icon" /> <strong>{t('packagesPage.price')}:</strong>{' '}
                     <span className="price-text">
                       {pkg.cost ? pkg.cost.toLocaleString() : '0'} BDT
                     </span>
                   </p>
                   <p>
-                    <FaCalendarAlt className="detail-icon" /> <strong>Availability:</strong> Open
-                    for Booking
+                    <FaCalendarAlt className="detail-icon" /> <strong>{t('packagesPage.availability')}:</strong> {t('packagesPage.open')}
                   </p>
                 </div>
 
                 <div className="card-actions">
                   <Link to={`/packages/${pkg.id}`} className="secondary-btn">
-                    View Itinerary
+                    {t('packagesPage.viewItinerary')}
                   </Link>
-                  <Link
-                    to="/register"
-                    state={{ selectedPackageId: pkg.id }}
-                    className="primary-btn"
-                  >
-                    Book Now
+                  <Link to="/register" state={{ selectedPackageId: pkg.id }} className="primary-btn">
+                    {t('packagesPage.bookNow')}
                   </Link>
                 </div>
               </div>
@@ -134,8 +111,8 @@ const PackagesPage = () => {
           <div className="no-packages">
             <h3>
               {allPackages.length === 0
-                ? 'Loading live packages...'
-                : 'No packages found for this category.'}
+                ? t('packagesPage.loading')
+                : t('packagesPage.noneFound')}
             </h3>
           </div>
         )}

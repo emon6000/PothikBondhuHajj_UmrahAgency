@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { FaPassport, FaIdCard, FaFileImage, FaSyringe, FaNotesMedical, FaCheckCircle } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 
 const VisaRequirements = () => {
   const location = useLocation();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('hajj');
 
   useEffect(() => {
@@ -17,67 +19,60 @@ const VisaRequirements = () => {
   return (
     <div className="visa-page">
       <div className="visa-header">
-        <h2>Official Visa Requirements</h2>
-        <p>Ensure you have all the necessary documents for a smooth visa processing experience.</p>
+        <h2>{t('visa.title')}</h2>
+        <p>{t('visa.subtitle')}</p>
       </div>
 
       <div className="visa-tabs">
-        <button 
-          className={`tab-btn ${activeTab === 'hajj' ? 'active' : ''}`}
-          onClick={() => setActiveTab('hajj')}
-        >
-          Hajj Visa
+        <button className={`tab-btn ${activeTab === 'hajj' ? 'active' : ''}`} onClick={() => setActiveTab('hajj')}>
+          {t('visa.hajjTab')}
         </button>
-        <button 
-          className={`tab-btn ${activeTab === 'umrah' ? 'active' : ''}`}
-          onClick={() => setActiveTab('umrah')}
-        >
-          Umrah Visa
+        <button className={`tab-btn ${activeTab === 'umrah' ? 'active' : ''}`} onClick={() => setActiveTab('umrah')}>
+          {t('visa.umrahTab')}
         </button>
       </div>
 
       <div className="visa-content-container">
-        
         {activeTab === 'hajj' && (
           <div className="visa-content-panel fade-in">
-            <h3 className="panel-title">Hajj Visa Checklist (2026-2027)</h3>
-            <p className="panel-desc">Hajj visas have strict quotas and rigorous medical requirements. Please prepare the following well in advance.</p>
+            <h3 className="panel-title">{t('visa.hajjPanelTitle')}</h3>
+            <p className="panel-desc">{t('visa.hajjPanelDesc')}</p>
             
             <div className="req-grid">
               <div className="req-card">
                 <FaPassport className="req-icon" />
-                <h4>Original Passport</h4>
-                <p>Must be valid for at least 6 months from the date of travel, with two blank pages facing each other.</p>
+                <h4>{t('visa.passportTitle')}</h4>
+                <p>{t('visa.passportDesc')}</p>
               </div>
               
               <div className="req-card">
                 <FaIdCard className="req-icon" />
-                <h4>National ID / Birth Certificate</h4>
-                <p>Clear color photocopy of your Smart NID. For minors, a computerized Birth Certificate is required.</p>
+                <h4>{t('visa.nidTitle')}</h4>
+                <p>{t('visa.nidDesc')}</p>
               </div>
 
               <div className="req-card">
                 <FaFileImage className="req-icon" />
-                <h4>Photographs</h4>
-                <p>4 recent passport-size photographs (4x4 cm) with a pure white background. Do not wear glasses.</p>
+                <h4>{t('visa.photoTitle')}</h4>
+                <p>{t('visa.photoDesc')}</p>
               </div>
 
               <div className="req-card">
                 <FaSyringe className="req-icon" />
-                <h4>Meningitis Vaccine</h4>
-                <p>Original vaccination certificate for ACYW135 (Meningitis). Must be valid for 3 years.</p>
+                <h4>{t('visa.vaccineTitle')}</h4>
+                <p>{t('visa.vaccineDesc')}</p>
               </div>
 
               <div className="req-card">
                 <FaNotesMedical className="req-icon" />
-                <h4>Medical Certificate</h4>
-                <p>A general health certificate from a certified medical practitioner confirming you are fit for travel.</p>
+                <h4>{t('visa.medTitle')}</h4>
+                <p>{t('visa.medDesc')}</p>
               </div>
 
               <div className="req-card">
                 <FaCheckCircle className="req-icon" />
-                <h4>Biometrics (NUSUK)</h4>
-                <p>Mandatory biometric fingerprint registration through the official Saudi Visa Bio app.</p>
+                <h4>{t('visa.bioTitle')}</h4>
+                <p>{t('visa.bioDesc')}</p>
               </div>
             </div>
           </div>
@@ -85,37 +80,36 @@ const VisaRequirements = () => {
 
         {activeTab === 'umrah' && (
           <div className="visa-content-panel fade-in">
-            <h3 className="panel-title">Umrah e-Visa Checklist</h3>
-            <p className="panel-desc">Umrah e-Visas are processed rapidly. Ensure your digital documents are clear and readable.</p>
+            <h3 className="panel-title">{t('visa.umrahPanelTitle')}</h3>
+            <p className="panel-desc">{t('visa.umrahPanelDesc')}</p>
             
             <div className="req-grid">
               <div className="req-card">
                 <FaPassport className="req-icon" />
-                <h4>Scanned Passport</h4>
-                <p>A high-quality color scan of your passport's bio-data page. Must be valid for at least 6 months.</p>
+                <h4>{t('visa.scannedPassportTitle')}</h4>
+                <p>{t('visa.scannedPassportDesc')}</p>
               </div>
               
               <div className="req-card">
                 <FaFileImage className="req-icon" />
-                <h4>Digital Photograph</h4>
-                <p>Soft copy of a recent passport-size photo with a white background. Minimum resolution 600x600 pixels.</p>
+                <h4>{t('visa.digitalPhotoTitle')}</h4>
+                <p>{t('visa.digitalPhotoDesc')}</p>
               </div>
 
               <div className="req-card">
                 <FaIdCard className="req-icon" />
-                <h4>NID Copy</h4>
-                <p>Clear photocopy of your Bangladeshi National ID card.</p>
+                <h4>{t('visa.nidCopyTitle')}</h4>
+                <p>{t('visa.nidCopyDesc')}</p>
               </div>
 
               <div className="req-card">
                 <FaCheckCircle className="req-icon" />
-                <h4>Biometrics (NUSUK)</h4>
-                <p>Mandatory biometric fingerprint registration through the official Saudi Visa Bio app before departure.</p>
+                <h4>{t('visa.bioTitle')}</h4>
+                <p>{t('visa.umrahBioDesc')}</p>
               </div>
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
