@@ -1,19 +1,16 @@
 import { useEffect, useState } from 'react';
 import {
   FaArrowLeft,
-  FaBus,
   FaCheckCircle,
-  FaHotel,
-  FaIdBadge,
-  FaPlane,
-  FaUtensils,
 } from 'react-icons/fa';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 const PackageDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  
   const [pkg, setPkg] = useState(null);
+  const [services, setServices] = useState([]); // New state for dynamic services
   const [loading, setLoading] = useState(true);
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -21,10 +18,18 @@ const PackageDetails = () => {
   useEffect(() => {
     const fetchPackageDetails = async () => {
       try {
+        // 1. Fetch Package Main Details
         const response = await fetch(`${API_URL}/api/packages`);
         const data = await response.json();
         const foundPackage = data.find((p) => p.id === id);
         setPkg(foundPackage);
+
+        // 2. Fetch Dynamic Services (Inclusions/Exclusions)
+        const servicesRes = await fetch(`${API_URL}/api/packages/${id}/services`);
+        if (servicesRes.ok) {
+          const servicesData = await servicesRes.json();
+          setServices(servicesData);
+        }
       } catch (err) {
         console.error('Error fetching package details:', err);
       } finally {
@@ -32,7 +37,7 @@ const PackageDetails = () => {
       }
     };
     fetchPackageDetails();
-  }, [id]);
+  }, [id, API_URL]);
 
   // Smart dynamic itinerary generator based on package duration text
   const generateItinerary = (durationStr, type, features) => {
@@ -292,28 +297,53 @@ const PackageDetails = () => {
 
         <div className="details-content-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px', marginTop: '30px' }}>
           <div className="details-main-content">
+            
+            {/* UPDATED DYNAMIC SERVICES SECTION */}
             <section className="info-section" style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.04)', marginBottom: '25px' }}>
-              <h3 style={{ fontSize: '1.3rem', color: '#0f172a', marginBottom: '1.25rem' }}>Package Inclusions</h3>
-              <div className="inclusions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
-                <div className="inclusion-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#334155', fontWeight: '500' }}>
-                  <FaPlane style={{ color: '#064e3b' }} /> <span>Return Air Ticket</span>
+              <h3 style={{ fontSize: '1.3rem', color: '#0f172a', marginBottom: '1.25rem' }}>Package Inclusions & Exclusions</h3>
+              
+              {services.length === 0 ? (
+                <p style={{ color: '#64748b', fontStyle: 'italic' }}>No specific service breakdown available.</p>
+              ) : (
+                <div className="inclusions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
+                  {services.map((item, index) => (
+                    <div 
+                      key={index} 
+                      className="inclusion-item" 
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '10px', 
+                        padding: '12px',
+                        borderRadius: '8px',
+                        background: item.is_included ? '#ecfdf5' : '#fff1f2',
+                        border: `1px solid ${item.is_included ? '#d1fae5' : '#ffe4e6'}`,
+                        opacity: item.is_included ? 1 : 0.7
+                      }}
+                    >
+                      {item.is_included ? (
+                        <FaCheckCircle style={{ color: '#059669', flexShrink: 0, fontSize: '1.1rem' }} />
+                      ) : (
+                        <span style={{ color: '#e11d48', flexShrink: 0, fontWeight: 'bold', fontSize: '1.1rem' }}>✕</span>
+                      )}
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ 
+                          color: item.is_included ? '#064e3b' : '#9f1239', 
+                          fontWeight: '600',
+                          fontSize: '0.95rem',
+                          textDecoration: item.is_included ? 'none' : 'line-through'
+                        }}>
+                          {item.service_name}
+                        </span>
+                        <span style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>
+                          {item.category}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="inclusion-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#334155', fontWeight: '500' }}>
-                  <FaIdBadge style={{ color: '#064e3b' }} /> <span>Visa Processing</span>
-                </div>
-                <div className="inclusion-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#334155', fontWeight: '500' }}>
-                  <FaHotel style={{ color: '#064e3b' }} /> <span>Star Rated Hotels</span>
-                </div>
-                <div className="inclusion-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#334155', fontWeight: '500' }}>
-                  <FaBus style={{ color: '#064e3b' }} /> <span>AC Transport in KSA</span>
-                </div>
-                <div className="inclusion-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#334155', fontWeight: '500' }}>
-                  <FaUtensils style={{ color: '#064e3b' }} /> <span>Daily Meals (Buffet)</span>
-                </div>
-                <div className="inclusion-item" style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#334155', fontWeight: '500' }}>
-                  <FaCheckCircle style={{ color: '#064e3b' }} /> <span>Guided Ziyarah</span>
-                </div>
-              </div>
+              )}
             </section>
 
             <section className="info-section" style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.04)' }}>
