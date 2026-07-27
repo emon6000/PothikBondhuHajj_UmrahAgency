@@ -35,6 +35,25 @@ router.get('/packages/:id', async (req, res) => {
   }
 });
 
+// Retrieve services for a specific package (Junction Table query)
+router.get('/packages/:id/services', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const query = `
+      SELECT s.service_name, s.category, ps.is_included
+      FROM package_services ps
+      JOIN services s ON ps.service_id = s.service_id
+      WHERE ps.package_id = $1
+      ORDER BY ps.is_included DESC, s.category ASC;
+    `;
+    const result = await pool.query(query, [id]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching package services:', error.message);
+    res.status(500).json({ error: 'Failed to fetch services' });
+  }
+});
+
 // Retrieve booking status by tracking ID
 router.get('/track/:bookingId', async (req, res) => {
   try {
