@@ -12,51 +12,54 @@ const Navbar = () => {
 
   return (
     <>
-      {/* INTERNAL CSS FOR MOBILE RESPONSIVENESS */}
       <style>
         {`
-          /* Hide the hamburger button on Desktop */
           .mobile-menu-btn {
             display: none;
           }
 
           @media (max-width: 768px) {
+            /* Switch to CSS Grid to strictly prevent the hamburger from wrapping */
             .main-navbar {
-              display: flex;
-              flex-wrap: wrap; /* Allows the dropdown links to slide underneath */
+              display: grid !important;
+              grid-template-columns: 1fr auto auto;
               align-items: center;
-              padding: 10px 15px;
+              padding: 10px 15px !important;
+              gap: 10px;
             }
             
-            /* 1. Keep Brand on the left */
             .navbar-brand {
-              order: 1; 
+              grid-column: 1;
+              display: flex;
+              align-items: center;
+              overflow: hidden; /* Prevent long text from blowing out the layout */
             }
 
-            /* 2. Push Track button to the right, just before the hamburger */
+            .brand-text {
+              font-size: 1.1rem !important; /* Slightly smaller for mobile */
+              white-space: nowrap;
+            }
+
             .navbar-actions {
-              order: 2;
-              margin-left: auto; /* Pushes it all the way right */
-              margin-right: 15px; /* Gap between button and hamburger */
+              grid-column: 2;
+              margin: 0 !important; /* Clear any conflicting margins */
             }
 
-            /* 3. Hamburger menu stays on the far right */
             .mobile-menu-btn {
-              display: block;
-              order: 3;
+              grid-column: 3;
+              display: block !important;
               background: none;
               border: none;
               font-size: 1.5rem;
               color: #064e3b;
               cursor: pointer;
-              padding-top: 5px;
+              padding: 5px 0 0 0;
             }
 
-            /* 4. The links container takes full width on the bottom row when open */
             .nav-content-wrapper {
-              order: 4;
+              grid-column: 1 / -1; /* Span the entire bottom row */
               width: 100%;
-              display: ${isMobileMenuOpen ? 'flex' : 'none'};
+              display: ${isMobileMenuOpen ? 'flex' : 'none'} !important;
               flex-direction: column;
               margin-top: 15px;
               gap: 15px;
@@ -64,7 +67,6 @@ const Navbar = () => {
               padding-top: 15px;
             }
 
-            /* Stack links vertically */
             .navbar-links {
               display: flex;
               flex-direction: column;
@@ -97,24 +99,25 @@ const Navbar = () => {
               display: flex;
             }
 
-            /* Make the Track button slightly smaller on mobile to guarantee it fits */
             .login-btn {
               padding: 6px 12px !important;
               font-size: 0.85rem !important;
             }
           }
 
-          /* On tiny screens (like iPhone SE), hide the word "Status" so it doesn't squish the logo */
-          @media (max-width: 400px) {
+          /* Hide "Status" on very tiny screens like iPhone SE */
+          @media (max-width: 380px) {
             .track-text-hide {
               display: none;
+            }
+            .brand-text {
+              font-size: 1rem !important;
             }
           }
         `}
       </style>
 
       <nav className="main-navbar">
-        {/* 1. Navbar Brand */}
         <div className="navbar-brand">
           <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
             <img src={logo} alt="Pothik Bondhu Logo" className="logo-img" />
@@ -122,7 +125,6 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* 4. Link Wrapper (This drops to the bottom on mobile) */}
         <div className="nav-content-wrapper">
           <ul className="navbar-links">
             <li className="dropdown">
@@ -159,7 +161,6 @@ const Navbar = () => {
           </ul>
         </div>
 
-        {/* 2. Track Status Button (Visible at all times) */}
         <div className="navbar-actions">
           <Link 
             to="/track" 
@@ -184,7 +185,6 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* 3. Hamburger Button */}
         <button className="mobile-menu-btn" onClick={toggleMobileMenu}>
           {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
         </button>

@@ -1,15 +1,20 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
+  FaEdit,
   FaHistory,
   FaMoneyBillWave,
   FaReceipt,
   FaSearch,
+  FaSignOutAlt,
   FaTimes,
   FaTrashAlt,
   FaUserClock,
 } from 'react-icons/fa';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+
   const [users, setUsers] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [packages, setPackages] = useState([]);
@@ -17,6 +22,9 @@ const AdminDashboard = () => {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [searchId, setSearchId] = useState('');
+
+  // Track if we are editing an existing package
+  const [editingPkgId, setEditingPkgId] = useState(null);
 
   const [pkgForm, setPkgForm] = useState({
     title: '',
@@ -35,6 +43,11 @@ const AdminDashboard = () => {
   }, []);
 
   const getToken = () => localStorage.getItem('pothik_token');
+
+  const handleLogout = () => {
+    localStorage.removeItem('pothik_token');
+    navigate('/login'); // Adjust this to match your actual login route
+  };
 
   const fetchUsers = async () => {
     try {
@@ -197,18 +210,45 @@ const AdminDashboard = () => {
     alert(`Tracking ID Copied: ${bookingId}`);
   };
 
-  const handleCreatePackage = async (e) => {
+  // --- CRUD Operations for Packages --- //
+
+  const handleEditClick = (pkg) => {
+    setEditingPkgId(pkg.id);
+    setPkgForm({
+      title: pkg.title,
+      type: pkg.type,
+      duration: pkg.duration,
+      cost: pkg.cost,
+      features: pkg.features || '', // Handle arrays/nulls gracefully if needed
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingPkgId(null);
+    setPkgForm({ title: '', type: 'hajj', duration: '', cost: '', features: '' });
+  };
+
+  const handleSavePackage = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${API_URL}/api/admin/packages`, {
-        method: 'POST',
+      // Determine if we are updating (PUT) or creating (POST)
+      const method = editingPkgId ? 'PUT' : 'POST';
+      const url = editingPkgId 
+        ? `${API_URL}/api/admin/packages/${editingPkgId}` 
+        : `${API_URL}/api/admin/packages`;
+
+      const response = await fetch(url, {
+        method: method,
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
         body: JSON.stringify(pkgForm),
       });
+
       if (response.ok) {
-        alert('Package added successfully!');
-        setPkgForm({ title: '', type: 'hajj', duration: '', cost: '', features: '' });
+        alert(`Package ${editingPkgId ? 'updated' : 'added'} successfully!`);
+        handleCancelEdit(); // Reset form and ID
         fetchPackages();
+      } else {
+        alert('Failed to save package.');
       }
     } catch (err) {
       console.error(err);
@@ -230,10 +270,34 @@ const AdminDashboard = () => {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: '#f1f5f9' }}>
-      {/* MAIN CONTENT AREA (Padding right ensures it doesn't hide behind the fixed sidebar) */}
+      {/* MAIN CONTENT AREA */}
       <div style={{ flex: 1, padding: '2rem', paddingRight: '380px', width: '100%' }}>
-        <h2>Agency Control Center</h2>
-        <p style={{ color: '#64748b' }}>Manage your pilgrims, finances, and website packages.</p>
+        
+        {/* Header with Logout */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h2>Agency Control Center</h2>
+            <p style={{ color: '#64748b' }}>Manage your pilgrims, finances, and website packages.</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            style={{
+              background: '#ef4444',
+              color: 'white',
+              padding: '10px 20px',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontWeight: 'bold',
+              boxShadow: '0 4px 6px rgba(239, 68, 68, 0.2)'
+            }}
+          >
+            <FaSignOutAlt /> Logout
+          </button>
+        </div>
 
         <div
           style={{
@@ -495,18 +559,22 @@ const AdminDashboard = () => {
             3. Dynamic Package Management
           </h3>
           <div style={{ display: 'flex', gap: '2rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+            
+            {/* DYNAMIC FORM: Creates OR Updates based on state */}
             <form
-              onSubmit={handleCreatePackage}
+              onSubmit={handleSavePackage}
               style={{
                 flex: '1',
-                background: '#f8fafc',
+                background: editingPkgId ? '#fefce8' : '#f8fafc',
                 padding: '1.5rem',
                 borderRadius: '8px',
                 minWidth: '300px',
-                border: '1px solid #e2e8f0',
+                border: editingPkgId ? '1px solid #fde047' : '1px solid #e2e8f0',
               }}
             >
-              <h4 style={{ margin: '0 0 1rem 0' }}>Add New Package</h4>
+              <h4 style={{ margin: '0 0 1rem 0', color: editingPkgId ? '#ca8a04' : '#0f172a' }}>
+                {editingPkgId ? 'Edit Package' : 'Add New Package'}
+              </h4>
               <input
                 type="text"
                 placeholder="Package Title"
@@ -581,21 +649,43 @@ const AdminDashboard = () => {
                   boxSizing: 'border-box',
                 }}
               ></textarea>
-              <button
-                type="submit"
-                style={{
-                  width: '100%',
-                  background: '#064e3b',
-                  color: 'white',
-                  padding: '12px',
-                  border: 'none',
-                  borderRadius: '5px',
-                  cursor: 'pointer',
-                  fontWeight: 'bold',
-                }}
-              >
-                Publish Package
-              </button>
+              
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  type="submit"
+                  style={{
+                    flex: '1',
+                    background: editingPkgId ? '#ca8a04' : '#064e3b',
+                    color: 'white',
+                    padding: '12px',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {editingPkgId ? 'Update Package' : 'Publish Package'}
+                </button>
+                
+                {editingPkgId && (
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    style={{
+                      flex: '1',
+                      background: '#64748b',
+                      color: 'white',
+                      padding: '12px',
+                      border: 'none',
+                      borderRadius: '5px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
             </form>
 
             <div style={{ flex: '2', minWidth: '300px' }}>
@@ -609,7 +699,7 @@ const AdminDashboard = () => {
                       justifyContent: 'space-between',
                       alignItems: 'center',
                       background: 'white',
-                      border: '1px solid #e2e8f0',
+                      border: editingPkgId === pkg.id ? '2px solid #fde047' : '1px solid #e2e8f0',
                       padding: '15px',
                       borderRadius: '8px',
                       boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
@@ -634,20 +724,39 @@ const AdminDashboard = () => {
                         {pkg.duration} | {pkg.cost} BDT
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleDeletePackage(pkg.id)}
-                      style={{
-                        color: '#ef4444',
-                        background: '#fee2e2',
-                        padding: '10px',
-                        borderRadius: '50%',
-                        border: 'none',
-                        cursor: 'pointer',
-                        display: 'flex',
-                      }}
-                    >
-                      <FaTrashAlt />
-                    </button>
+                    
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        onClick={() => handleEditClick(pkg)}
+                        style={{
+                          color: '#0284c7',
+                          background: '#e0f2fe',
+                          padding: '10px',
+                          borderRadius: '50%',
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                        }}
+                        title="Edit Package"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        onClick={() => handleDeletePackage(pkg.id)}
+                        style={{
+                          color: '#ef4444',
+                          background: '#fee2e2',
+                          padding: '10px',
+                          borderRadius: '50%',
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'flex',
+                        }}
+                        title="Delete Package"
+                      >
+                        <FaTrashAlt />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -656,6 +765,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* FIXED SIDEBAR: Finance Ledger */}
       <div
         style={{
           position: 'fixed',

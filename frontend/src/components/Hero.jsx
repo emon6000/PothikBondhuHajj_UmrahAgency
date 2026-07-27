@@ -10,20 +10,19 @@ const Hero = () => {
 
   return (
     <>
-      {/* INTERNAL CSS FOR MOBILE RESPONSIVENESS ONLY */}
       <style>
         {`
           @media (max-width: 768px) {
-            /* 1. Reduce overall vertical space */
             .hero-container {
               display: flex;
               flex-direction: column;
-              gap: 20px !important; /* Pulls the map image closer to the text */
+              gap: 15px !important; 
+              overflow: hidden; /* Prevent side-scrolling */
             }
 
             .hero-title {
-              font-size: 1.8rem !important; /* Prevent massive text on mobile */
-              line-height: 1.2 !important;
+              font-size: 1.7rem !important; 
+              line-height: 1.3 !important;
               margin-bottom: 10px !important;
             }
 
@@ -32,21 +31,88 @@ const Hero = () => {
               margin-bottom: 15px !important;
             }
 
-            /* Make sure the map image scales down cleanly */
-            .map-wrapper {
-              width: 100%;
-              text-align: center;
+            /* FIX: Constrain the Trusted Scholars Badge */
+            .trusted-faces-container {
+              display: flex !important;
+              flex-direction: row !important;
+              align-items: center !important;
+              justify-content: center !important;
+              gap: 10px !important;
+              background: rgba(255, 255, 255, 0.15) !important;
+              padding: 8px 15px !important;
+              border-radius: 50px !important;
+              margin: 10px auto 20px auto !important;
+              width: fit-content !important;
+              max-width: 95%;
             }
-            .BranchImage {
-              max-width: 100%;
-              height: auto;
-              border-radius: 8px; /* Optional: smooths the edges */
+            
+            .trusted-faces-img {
+              height: 40px !important;
+              width: auto !important;
+            }
+            
+            .trusted-text {
+              font-size: 0.85rem !important;
+              line-height: 1.2 !important;
+              text-align: left;
             }
 
-            /* 2. Fix the Stats Overflow (Convert row to 2x2 grid) */
+            .hero-btns {
+              display: flex !important;
+              justify-content: center !important;
+              gap: 15px !important;
+              margin-bottom: 20px !important;
+            }
+
+            .book-now-btn, .play-video {
+              font-size: 0.9rem !important;
+              padding: 10px 20px !important;
+            }
+
+            /* FIX: Map Image Overflow */
+            .hero-right {
+              width: 100%;
+              box-sizing: border-box;
+              padding: 0 10px;
+            }
+            
+            .map-wrapper {
+              width: 100%;
+              display: flex;
+              justify-content: center;
+              position: relative;
+            }
+            
+            .map-wrapper a {
+              display: inline-block;
+              width: 100%;
+              position: relative;
+            }
+
+            .BranchImage {
+              width: 100%;
+              max-width: 100%;
+              height: auto;
+              border-radius: 8px;
+              object-fit: contain;
+            }
+
+            /* FIX: The map hint positioning */
+            .map-hint {
+              position: absolute;
+              bottom: 10px;
+              right: 10px;
+              background: rgba(0, 0, 0, 0.7);
+              color: white;
+              padding: 5px 10px;
+              border-radius: 5px;
+              font-size: 0.75rem;
+            }
+
+            /* FIX: 2x2 Grid for Stats */
             .stats-container {
               display: flex;
-              flex-wrap: wrap !important; /* This stops the horizontal overflow */
+              flex-wrap: wrap !important;
               justify-content: center;
               gap: 10px !important;
               width: 100%;
@@ -56,20 +122,19 @@ const Hero = () => {
             }
 
             .stat-card {
-              flex: 1 1 45% !important; /* Forces 2 items per row */
-              min-width: 130px; /* Prevents them from getting too squished */
+              flex: 1 1 45% !important; 
+              min-width: 130px; 
               padding: 10px 5px !important;
               box-sizing: border-box;
             }
 
-            /* Scale down stat text so it fits in the new 2x2 grid */
             .stat-card h2 {
-              font-size: 1.6rem !important;
+              font-size: 1.4rem !important;
               margin-bottom: 5px !important;
             }
 
             .stat-card p {
-              font-size: 0.75rem !important;
+              font-size: 0.65rem !important;
               word-wrap: break-word;
             }
           }

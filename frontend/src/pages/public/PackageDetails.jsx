@@ -10,7 +10,7 @@ const PackageDetails = () => {
   const navigate = useNavigate();
   
   const [pkg, setPkg] = useState(null);
-  const [services, setServices] = useState([]); // New state for dynamic services
+  const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -24,7 +24,7 @@ const PackageDetails = () => {
         const foundPackage = data.find((p) => p.id === id);
         setPkg(foundPackage);
 
-        // 2. Fetch Dynamic Services (Inclusions/Exclusions)
+        // 2. Fetch Dynamic Services (Inclusions/Exclusions from Junction Table)
         const servicesRes = await fetch(`${API_URL}/api/packages/${id}/services`);
         if (servicesRes.ok) {
           const servicesData = await servicesRes.json();
@@ -39,41 +39,56 @@ const PackageDetails = () => {
     fetchPackageDetails();
   }, [id, API_URL]);
 
-  // Smart dynamic itinerary generator based on package duration text
-  const generateItinerary = (durationStr, type, features) => {
-    if (!durationStr) {
-      return [
-        { day: 'Day 1', desc: 'Departure from Dhaka to Jeddah and transfer to hotel.' },
-        { day: 'Final Day', desc: 'Check-out and airport transfer for return flight to Dhaka.' }
-      ];
-    }
+  // Smart dynamic itinerary generator reading LIVE database services
+  const generateItinerary = (durationStr, type, servicesArray = []) => {
+    if (!durationStr) return [];
 
-    // Extract numbers from duration string (e.g., "14 Days" -> 14)
-    const match = durationStr.match(/\d+/);
-    const totalDays = match ? parseInt(match[0], 10) : 7;
+    const totalDays = parseInt(durationStr.match(/\d+/)?.[0] || '7', 10);
+    const isHajj = type?.toLowerCase().includes('hajj');
 
-    if (totalDays <= 7) {
+    // Extract included services directly from your Neon DB data
+    const included = servicesArray.filter(s => s.is_included).map(s => s.service_name);
+    
+    // Dynamic text injections based on database features
+    const flightType = included.includes('Direct Flight (Biman/Saudia)') 
+      ? 'Direct flight via Biman/Saudia' 
+      : 'Transit flight';
+      
+    const hotelType = included.includes('5-Star Hotel in Makkah & Madinah') 
+      ? '5-Star luxury hotel check-in' 
+      : '3-Star hotel check-in';
+      
+    const transportType = included.includes('VIP AC Bus Transfers')
+      ? 'VIP AC Bus transfer'
+      : 'Standard AC transport';
+
+    const hasZiyarah = included.includes('Guided Ziyarah (Historical Sites)');
+    const ziyarahDesc = hasZiyarah 
+      ? 'Participate in guided Ziyarah (historical tours) of Makkah and Madinah with our experts.' 
+      : 'Spend your days engaging in continuous worship and personal prayers at the Harams.';
+
+    const hasScholar = included.includes('Dedicated Islamic Scholar (Moallem)');
+    const scholarDesc = hasScholar 
+      ? 'under the continuous guidance of our dedicated Islamic Scholar.' 
+      : 'with assistance from our experienced Moallem.';
+
+    if (!isHajj) {
+      // UMRAH PACKAGES
       return [
-        { day: 'Day 1', desc: 'Departure from Dhaka (Hazrat Shahjalal International Airport) to Jeddah/Madinah. Hotel check-in.' },
-        { day: `Day 2-${totalDays - 1}`, desc: `Perform Umrah with experienced Moallem. Dedicated time for prayers at Masjid al-Haram / Al-Masjid an-Nabawi. ${features || ''}` },
-        { day: `Day ${totalDays}`, desc: 'Final prayers, hotel check-out, and transfer to airport for return flight to Dhaka.' }
-      ];
-    } else if (totalDays <= 20) {
-      return [
-        { day: 'Day 1', desc: 'Departure from Dhaka to KSA. Arrival and transfer to Makkah hotel.' },
-        { day: `Day 2-${Math.floor(totalDays / 2)}`, desc: 'Perform Umrah, guided Ziyarah of historical sites in Makkah (Jabal al-Nour, Cave of Hira, etc.).' },
-        { day: `${Math.floor(totalDays / 2) + 1}-${totalDays - 1}`, desc: 'Transfer to Madinah. Prayers at Al-Masjid an-Nabawi and visit Rawdah Sharif.' },
-        { day: `Day ${totalDays}`, desc: 'Farewell tawaf (if applicable), check-out, and airport transfer back to Dhaka.' }
+        { day: 'Day 1', desc: `Departure from Dhaka. ${flightType} to KSA. Arrival and ${transportType} to your hotel. ${hotelType}.` },
+        { day: `Day 2-${Math.floor(totalDays / 2)}`, desc: `Perform main Umrah rituals ${scholarDesc} ${ziyarahDesc}` },
+        { day: `${Math.floor(totalDays / 2) + 1}-${totalDays - 1}`, desc: `Transfer to Madinah via ${transportType}. Engage in prayers at Al-Masjid an-Nabawi and visit Rawdah Sharif.` },
+        { day: `Day ${totalDays}`, desc: `Final prayers, hotel check-out, and ${transportType} to the airport for your return flight to Dhaka.` }
       ];
     } else {
-      // For long Hajj packages (e.g., 40 Days)
-      const isHajj = type?.toLowerCase().includes('hajj');
+      // HAJJ PACKAGES
       return [
-        { day: 'Day 1-5', desc: 'Arrival in KSA, initial settling in Makkah hotel, and performance of Umrah.' },
-        { day: 'Day 6-10', desc: isHajj ? 'Preparation for Hajj rites, spiritual sessions, and lectures by scholars.' : 'Extended stay with daily prayers and local Ziyarah tours.' },
-        { day: isHajj ? 'Day 11-15' : 'Day 11-middle', desc: isHajj ? 'The Holy Rituals: Moving to Mina, Arafat (Wuquf), Muzdalifah, and Rami (stoning of Jamarat).' : 'Continuous worship, tahajjud, and spiritual reflections in the holy sanctuaries.' },
-        { day: `Day ${totalDays - 5}-${totalDays - 1}`, desc: 'Madinah phase: Staying near Masjid an-Nabawi, visiting historical mosques and graveyard of Baqi.' },
-        { day: `Day ${totalDays}`, desc: 'Final departure from Jeddah/Madinah airport back to Dhaka.' }
+        { day: 'Day 1', desc: `Departure from Hazrat Shahjalal International Airport. ${flightType} to KSA. ${hotelType} in Makkah.` },
+        { day: 'Day 2-7', desc: `Perform initial Umrah. Rest and prepare for Hajj rituals ${scholarDesc}` },
+        { day: 'Day 8-12', desc: `The Holy Rituals of Hajj: Proceed to Mina, Wuquf at Arafat, stay at Muzdalifah, and Rami (stoning of Jamarat).` },
+        { day: `Day 13-${totalDays - 8}`, desc: `Return to Makkah hotel. Perform Tawaf al-Ifadah. ${hasZiyarah ? 'Guided Ziyarah of Mount Uhud, Quba Mosque, and Qiblatain.' : 'Daily prayers at Masjid al-Haram.'}` },
+        { day: `Day ${totalDays - 7}-${totalDays - 1}`, desc: `Transfer to Madinah via ${transportType}. Stay near Masjid an-Nabawi, present Salam to the Prophet (PBUH), and pray in the Rawdah.` },
+        { day: `Day ${totalDays}`, desc: `Farewell Tawaf (Wida). Final ${transportType} to Jeddah/Madinah airport for the return flight to Bangladesh.` }
       ];
     }
   };
@@ -91,11 +106,11 @@ const PackageDetails = () => {
     );
   }
 
-  const dynamicItinerary = generateItinerary(pkg.duration, pkg.type, pkg.features);
+  // Generate itinerary passing the dynamic services array
+  const dynamicItinerary = generateItinerary(pkg.duration, pkg.type, services);
 
   return (
     <>
-      {/* INTERNAL CSS FOR MOBILE RESPONSIVENESS */}
       <style>{`
         @media (max-width: 768px) {
           .package-details-page {
@@ -106,7 +121,6 @@ const PackageDetails = () => {
             padding: 10px 0 !important;
           }
 
-          /* Stack Hero Section */
           .details-hero {
             display: flex !important;
             flex-direction: column !important;
@@ -165,7 +179,6 @@ const PackageDetails = () => {
             box-sizing: border-box;
           }
 
-          /* Stack Content Grid */
           .details-content-grid {
             display: flex !important;
             flex-direction: column !important;
@@ -186,7 +199,6 @@ const PackageDetails = () => {
             margin-bottom: 12px !important;
           }
 
-          /* Inclusions grid 2 columns on mobile */
           .inclusions-grid {
             display: grid !important;
             grid-template-columns: 1fr 1fr !important;
@@ -204,7 +216,6 @@ const PackageDetails = () => {
             line-height: 1.4 !important;
           }
 
-          /* Sidebar boxes */
           .details-sidebar {
             display: flex;
             flex-direction: column;
@@ -298,12 +309,11 @@ const PackageDetails = () => {
         <div className="details-content-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px', marginTop: '30px' }}>
           <div className="details-main-content">
             
-            {/* UPDATED DYNAMIC SERVICES SECTION */}
             <section className="info-section" style={{ background: 'white', padding: '2rem', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.04)', marginBottom: '25px' }}>
               <h3 style={{ fontSize: '1.3rem', color: '#0f172a', marginBottom: '1.25rem' }}>Package Inclusions & Exclusions</h3>
               
               {services.length === 0 ? (
-                <p style={{ color: '#64748b', fontStyle: 'italic' }}>No specific service breakdown available.</p>
+                <p style={{ color: '#64748b', fontStyle: 'italic' }}>Loading dynamic services...</p>
               ) : (
                 <div className="inclusions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
                   {services.map((item, index) => (

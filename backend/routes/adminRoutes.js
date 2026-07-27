@@ -158,6 +158,23 @@ router.post('/packages', async (req, res) => {
   }
 });
 
+// Update an existing travel package
+router.put('/packages/:id', async (req, res) => {
+  const { title, type, duration, cost, features } = req.body;
+  try {
+    await pool.query(
+      `UPDATE packages 
+       SET title = $1, type = $2, duration = $3, cost = $4, features = $5
+       WHERE id = $6`,
+      [title, type, duration, cost, features, req.params.id]
+    );
+    res.json({ message: 'Package updated successfully' });
+  } catch (error) {
+    console.error("Error updating package:", error);
+    res.status(500).json({ error: 'Server error updating package' });
+  }
+});
+
 // Delete an existing travel package
 router.delete('/packages/:id', async (req, res) => {
   try {
