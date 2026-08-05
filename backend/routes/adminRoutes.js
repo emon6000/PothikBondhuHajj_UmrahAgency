@@ -14,7 +14,7 @@ router.get('/users', async (req, res) => {
     );
     res.json(users.rows);
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error fetching users' });
   }
 });
 
@@ -28,7 +28,7 @@ router.get('/bookings', async (req, res) => {
     );
     res.json(bookings.rows);
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error fetching bookings' });
   }
 });
 
@@ -64,36 +64,20 @@ router.put('/approve-user/:id', async (req, res) => {
               <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; border: 1px solid #e2e8f0; border-radius: 10px;">
                 <h2 style="color: #064e3b; border-bottom: 2px solid #fbbf24; padding-bottom: 10px;">Assalamu Alaikum, ${name}!</h2>
                 <p style="font-size: 16px; line-height: 1.5;">Great news! Your registration has been officially approved by the Pothik Bondhu Admin.</p>
-                
                 <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; margin: 20px 0; text-align: center; border-left: 5px solid #064e3b;">
                   <p style="margin: 0; color: #64748b; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Your Secure Tracking ID</p>
                   <h3 style="margin: 10px 0 0 0; color: #0f172a; font-size: 24px;">${tracking_id}</h3>
                 </div>
-                
-                <p style="font-size: 15px; line-height: 1.5;">
-                  You can now copy and paste this ID into our website's Track Status portal here: 
-                  <a href="https://pothik-bondhu-hajj-umrah-agency.vercel.app/track" target="_blank" style="color: #064e3b; text-decoration: underline;">https://pothik-bondhu-hajj-umrah-agency.vercel.app/track</a> 
-                  to safely log your payments and view your visa progress.
-                </p>
               </div>
             `
           })
         });
-
-        if (!response.ok) {
-           const errorData = await response.json();
-           throw new Error(JSON.stringify(errorData));
-        }
-
-        console.log(`✅ Approval email sent to ${email} via Brevo`);
       } catch (emailErr) {
         console.error('Failed to send approval email via Brevo:', emailErr);
       }
     }
-
     res.json({ message: 'User approved and tracking ID emailed successfully!' });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: 'Server error approving user.' });
   }
 });
@@ -104,7 +88,7 @@ router.delete('/users/:id', async (req, res) => {
     await pool.query('DELETE FROM users WHERE id = $1', [req.params.id]);
     res.json({ message: 'User rejected and removed' });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error deleting user' });
   }
 });
 
@@ -114,20 +98,17 @@ router.delete('/bookings/:id', async (req, res) => {
     await pool.query('DELETE FROM bookings WHERE id = $1', [req.params.id]);
     res.json({ message: 'Booking canceled' });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error deleting booking' });
   }
 });
 
 // Update an existing booking status
 router.put('/update-booking-status/:id', async (req, res) => {
   try {
-    await pool.query('UPDATE bookings SET status = $1 WHERE id = $2', [
-      req.body.status,
-      req.params.id,
-    ]);
+    await pool.query('UPDATE bookings SET status = $1 WHERE id = $2', [req.body.status, req.params.id]);
     res.json({ message: 'Status updated' });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error updating status' });
   }
 });
 
@@ -140,36 +121,89 @@ router.get('/payments/:bookingId', async (req, res) => {
     );
     res.json(history.rows);
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error fetching payments' });
   }
 });
 
-// Create a new travel package
-router.post('/packages', async (req, res) => {
-  const { title, type, duration, cost, features } = req.body;
+// -------------------------------------------------------------
+// RELATIONAL PACKAGE MANAGEMENT (JUNCTION TABLE LOGIC)
+// -------------------------------------------------------------
+
+// Retrieve all available services for the Admin Checkboxes
+router.get('/services', async (req, res) => {
   try {
-    await pool.query(
-      `INSERT INTO packages (id, title, type, duration, cost, features) VALUES (gen_random_uuid(), $1, $2, $3, $4, $5)`,
-      [title, type, duration, cost, features]
-    );
-    res.status(201).json({ message: 'Package created' });
+    const services = await pool.query('SELECT * FROM services ORDER BY category, service_name');
+    res.json(services.rows);
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error fetching services' });
   }
 });
 
-// Update an existing travel package
-router.put('/packages/:id', async (req, res) => {
-  const { title, type, duration, cost, features } = req.body;
+// Create a new travel package and link checkboxes
+router.post('/packages', async (req, res) => {
+  const { title, type, duration, cost, service_ids } = req.body;
+  
   try {
-    await pool.query(
-      `UPDATE packages 
-       SET title = $1, type = $2, duration = $3, cost = $4, features = $5
-       WHERE id = $6`,
-      [title, type, duration, cost, features, req.params.id]
+    await pool.query('BEGIN'); // Start transaction
+
+    // Insert into packages table (ignoring 'features' column)
+    const packageResult = await pool.query(
+      `INSERT INTO packages (id, title, type, duration, cost) 
+       VALUES (gen_random_uuid(), $1, $2, $3, $4) RETURNING id`,
+      [title, type, duration, cost]
     );
+    const newPackageId = packageResult.rows[0].id;
+
+    // Insert the checked services into the package_services junction table
+    if (service_ids && Array.isArray(service_ids) && service_ids.length > 0) {
+      for (let serviceId of service_ids) {
+        await pool.query(
+          `INSERT INTO package_services (package_id, service_id, is_included) VALUES ($1, $2, true)`,
+          [newPackageId, serviceId]
+        );
+      }
+    }
+
+    await pool.query('COMMIT'); // Commit transaction
+    res.status(201).json({ message: 'Package created successfully' });
+  } catch (error) {
+    await pool.query('ROLLBACK'); // Undo if anything fails
+    console.error("Create Package Error:", error);
+    res.status(500).json({ error: 'Server error creating package' });
+  }
+});
+
+// Update an existing travel package and its linked checkboxes
+router.put('/packages/:id', async (req, res) => {
+  const { title, type, duration, cost, service_ids } = req.body;
+  const packageId = req.params.id;
+
+  try {
+    await pool.query('BEGIN');
+
+    // Update main package details
+    await pool.query(
+      `UPDATE packages SET title = $1, type = $2, duration = $3, cost = $4 WHERE id = $5`,
+      [title, type, duration, cost, packageId]
+    );
+
+    // Delete old checkboxes/relationships for this package
+    await pool.query(`DELETE FROM package_services WHERE package_id = $1`, [packageId]);
+
+    // Insert the newly checked services
+    if (service_ids && Array.isArray(service_ids) && service_ids.length > 0) {
+      for (let serviceId of service_ids) {
+        await pool.query(
+          `INSERT INTO package_services (package_id, service_id, is_included) VALUES ($1, $2, true)`,
+          [packageId, serviceId]
+        );
+      }
+    }
+
+    await pool.query('COMMIT');
     res.json({ message: 'Package updated successfully' });
   } catch (error) {
+    await pool.query('ROLLBACK');
     console.error("Error updating package:", error);
     res.status(500).json({ error: 'Server error updating package' });
   }
@@ -178,10 +212,15 @@ router.put('/packages/:id', async (req, res) => {
 // Delete an existing travel package
 router.delete('/packages/:id', async (req, res) => {
   try {
+    await pool.query('BEGIN');
+    // Must delete from junction table first to prevent Foreign Key constraint errors
+    await pool.query('DELETE FROM package_services WHERE package_id = $1', [req.params.id]);
     await pool.query('DELETE FROM packages WHERE id = $1', [req.params.id]);
+    await pool.query('COMMIT');
     res.json({ message: 'Package deleted' });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    await pool.query('ROLLBACK');
+    res.status(500).json({ error: 'Server error deleting package' });
   }
 });
 

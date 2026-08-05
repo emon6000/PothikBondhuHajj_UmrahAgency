@@ -13,12 +13,30 @@ router.get('/test-db', async (req, res) => {
   }
 });
 
-// Retrieve all packages
+// Retrieve all packages WITH their linked services attached
 router.get('/packages', async (req, res) => {
   try {
-    const allPackages = await pool.query('SELECT * FROM packages ORDER BY cost ASC');
+    const query = `
+      SELECT p.id, p.title, p.type, p.duration, p.cost,
+             COALESCE(
+               json_agg(
+                 json_build_object(
+                   'service_id', s.service_id, 
+                   'service_name', s.service_name, 
+                   'category', s.category
+                 )
+               ) FILTER (WHERE s.service_id IS NOT NULL), '[]'
+             ) as services
+      FROM packages p
+      LEFT JOIN package_services ps ON p.id = ps.package_id
+      LEFT JOIN services s ON ps.service_id = s.service_id
+      GROUP BY p.id
+      ORDER BY p.cost ASC;
+    `;
+    const allPackages = await pool.query(query);
     res.json(allPackages.rows);
   } catch (error) {
+    console.error('Error fetching packages:', error);
     res.status(500).json({ error: 'Server error fetching packages.' });
   }
 });
@@ -27,18 +45,16 @@ router.get('/packages', async (req, res) => {
 router.get('/packages/:id', async (req, res) => {
   try {
     const packageInfo = await pool.query('SELECT * FROM packages WHERE id = $1', [req.params.id]);
-    if (packageInfo.rows.length === 0)
-      return res.status(404).json({ message: 'Package not found' });
+    if (packageInfo.rows.length === 0) return res.status(404).json({ message: 'Package not found' });
     res.json(packageInfo.rows[0]);
   } catch (error) {
     res.status(500).json({ error: 'Server error fetching package details.' });
   }
 });
 
-// Retrieve services for a specific package (Junction Table query)
+// Retrieve services for a specific package
 router.get('/packages/:id/services', async (req, res) => {
   try {
-    const { id } = req.params;
     const query = `
       SELECT s.service_name, s.category, ps.is_included
       FROM package_services ps
@@ -46,10 +62,9 @@ router.get('/packages/:id/services', async (req, res) => {
       WHERE ps.package_id = $1
       ORDER BY ps.is_included DESC, s.category ASC;
     `;
-    const result = await pool.query(query, [id]);
+    const result = await pool.query(query, [req.params.id]);
     res.json(result.rows);
   } catch (error) {
-    console.error('Error fetching package services:', error.message);
     res.status(500).json({ error: 'Failed to fetch services' });
   }
 });
@@ -63,8 +78,7 @@ router.get('/track/:bookingId', async (req, res) => {
        WHERE b.id = $1`,
       [req.params.bookingId]
     );
-    if (trackResult.rows.length === 0)
-      return res.status(404).json({ error: 'Invalid Tracking ID.' });
+    if (trackResult.rows.length === 0) return res.status(404).json({ error: 'Invalid Tracking ID.' });
     res.json(trackResult.rows[0]);
   } catch (error) {
     res.status(500).json({ error: 'Server error tracking booking.' });
@@ -82,8 +96,7 @@ router.post('/register', async (req, res) => {
     const newUserId = newUserResult.rows[0].id;
 
     const packageResult = await pool.query('SELECT cost FROM packages WHERE id = $1', [packageId]);
-    if (packageResult.rows.length === 0)
-      return res.status(404).json({ error: 'Package not found.' });
+    if (packageResult.rows.length === 0) return res.status(404).json({ error: 'Package not found.' });
 
     const newBooking = await pool.query(
       `INSERT INTO bookings (user_id, package_id, status, total_cost, amount_paid) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
@@ -92,43 +105,19 @@ router.post('/register', async (req, res) => {
     const trackingId = newBooking.rows[0].id;
 
     try {
-      console.log("Database insert complete, attempting email send via Brevo API...");
-      
-      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'api-key': process.env.BREVO_API_KEY,
-          'content-type': 'application/json'
-        },
+        headers: { 'accept': 'application/json', 'api-key': process.env.BREVO_API_KEY, 'content-type': 'application/json' },
         body: JSON.stringify({
           sender: { name: 'Pothik Bondhu Agency', email: process.env.EMAIL_USER }, 
           to: [{ email: email }],
           subject: 'Registration Received - Pothik Bondhu',
-          htmlContent: `
-            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; border: 1px solid #e2e8f0; border-radius: 10px;">
-              <h2 style="color: #064e3b; border-bottom: 2px solid #fbbf24; padding-bottom: 10px;">Assalamu Alaikum, ${name}!</h2>
-              <p style="font-size: 16px; line-height: 1.5;">Your registration request has been successfully received by our system.</p>
-              <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #d97706;">
-                <p style="margin: 0; color: #92400e; font-size: 15px;"><strong>Status: Pending Review</strong></p>
-                <p style="margin: 5px 0 0 0; color: #b45309; font-size: 14px;">Our team is currently verifying your documents. Please wait for admin confirmation.</p>
-              </div>
-              <p style="font-size: 15px; line-height: 1.5;">Once your profile is approved, we will send you a second email containing your Secure Tracking ID.</p>
-            </div>
-          `
+          htmlContent: `<h2>Registration Received</h2><p>Admin is reviewing your application.</p>`
         })
       });
-
-      if (!response.ok) {
-         const errorData = await response.json();
-         throw new Error(JSON.stringify(errorData));
-      }
-      
-      console.log("Email sent successfully via Brevo!");
-      res.status(201).json({ message: 'Registration successful! Check your email for next steps.' });
+      res.status(201).json({ message: 'Registration successful! Check your email.' });
     } catch (emailError) {
-      console.error("BREVO CRASH REPORT:", emailError);
-      res.status(201).json({ message: 'Registration successful, but email delivery failed.' });
+      res.status(201).json({ message: 'Registration successful, email failed.' });
     }
   } catch (error) {
     res.status(500).json({ error: 'Server error during registration.' });
@@ -144,10 +133,7 @@ router.post('/process-payment', async (req, res) => {
       `INSERT INTO payments (booking_id, amount, method, transaction_id) VALUES ($1, $2, $3, $4)`,
       [bookingId, amount, method, txnId]
     );
-    await pool.query(`UPDATE bookings SET amount_paid = amount_paid + $1 WHERE id = $2`, [
-      amount,
-      bookingId,
-    ]);
+    await pool.query(`UPDATE bookings SET amount_paid = amount_paid + $1 WHERE id = $2`, [amount, bookingId]);
     res.json({ message: 'Payment successful!', transaction_id: txnId });
   } catch (error) {
     res.status(500).json({ error: 'Server error processing payment.' });

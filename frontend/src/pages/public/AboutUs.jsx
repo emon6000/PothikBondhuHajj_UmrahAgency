@@ -12,7 +12,7 @@ const AboutUs = () => {
       <div className="about-content">
         <section className="about-text-section">
           <h2>Our Story</h2>
-          <p>Founded in 2012, Pothik Bondhu was established with a singular vision: to facilitate the Hajj and Umrah journeys for Bangladeshi pilgrims with utmost sincerity, comfort, and logistical precision. Over the past decade, we have grown from a small local office into a nationwide network, recognized for our faith-centered service and transparent practices.</p>
+          <p>Founded in 2026, Pothik Bondhu was established with a singular vision: to facilitate the Hajj and Umrah journeys for Bangladeshi pilgrims with utmost sincerity, comfort, and logistical precision. Over the past decade, we have grown from a small local office into a nationwide network, recognized for our faith-centered service and transparent practices.</p>
         </section>
 
         <section className="core-values-grid">
