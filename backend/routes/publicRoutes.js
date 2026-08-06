@@ -105,19 +105,43 @@ router.post('/register', async (req, res) => {
     const trackingId = newBooking.rows[0].id;
 
     try {
-      await fetch('https://api.brevo.com/v3/smtp/email', {
+      console.log('Database insert complete, attempting email send via Brevo API...');
+
+      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
-        headers: { 'accept': 'application/json', 'api-key': process.env.BREVO_API_KEY, 'content-type': 'application/json' },
+        headers: {
+          'accept': 'application/json',
+          'api-key': process.env.BREVO_API_KEY,
+          'content-type': 'application/json'
+        },
         body: JSON.stringify({
-          sender: { name: 'Pothik Bondhu Agency', email: process.env.EMAIL_USER }, 
+          sender: { name: 'Pothik Bondhu Agency', email: process.env.EMAIL_USER },
           to: [{ email: email }],
           subject: 'Registration Received - Pothik Bondhu',
-          htmlContent: `<h2>Registration Received</h2><p>Admin is reviewing your application.</p>`
+          htmlContent: `
+            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; border: 1px solid #e2e8f0; border-radius: 10px;">
+              <h2 style="color: #064e3b; border-bottom: 2px solid #fbbf24; padding-bottom: 10px;">Assalamu Alaikum, ${name}!</h2>
+              <p style="font-size: 16px; line-height: 1.5;">Your registration request has been successfully received by our system.</p>
+              <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #d97706;">
+                <p style="margin: 0; color: #92400e; font-size: 15px;"><strong>Status: Pending Review</strong></p>
+                <p style="margin: 5px 0 0 0; color: #b45309; font-size: 14px;">Our team is currently verifying your documents. Please wait for admin confirmation.</p>
+              </div>
+              <p style="font-size: 15px; line-height: 1.5;">Once your profile is approved, we will send you a second email containing your Secure Tracking ID.</p>
+            </div>
+          `
         })
       });
-      res.status(201).json({ message: 'Registration successful! Check your email.' });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(JSON.stringify(errorData));
+      }
+
+      console.log('Email sent successfully via Brevo!');
+      res.status(201).json({ message: 'Registration successful! Check your email for next steps.' });
     } catch (emailError) {
-      res.status(201).json({ message: 'Registration successful, email failed.' });
+      console.error('BREVO CRASH REPORT:', emailError);
+      res.status(201).json({ message: 'Registration successful, but email delivery failed.' });
     }
   } catch (error) {
     res.status(500).json({ error: 'Server error during registration.' });

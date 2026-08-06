@@ -310,6 +310,7 @@ const AdminDashboard = () => {
                 <tr style={{ color: '#064e3b' }}>
                   <th style={{ padding: '10px' }}>Name</th>
                   <th>Phone</th>
+                  <th>Documents (NID / Passport)</th>
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -319,6 +320,18 @@ const AdminDashboard = () => {
                   <tr key={user.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                     <td style={{ padding: '12px 10px', fontWeight: 'bold' }}>{user.name}</td>
                     <td>{user.phone}</td>
+                    <td>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                        <span style={{ fontSize: '0.8em' }}>
+                          <span style={{ color: '#94a3b8', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px', marginRight: '6px' }}>NID</span>
+                          <span style={{ fontFamily: 'monospace', color: '#0f172a', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>{user.nid || '—'}</span>
+                        </span>
+                        <span style={{ fontSize: '0.8em' }}>
+                          <span style={{ color: '#94a3b8', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.5px', marginRight: '6px' }}>Passport</span>
+                          <span style={{ fontFamily: 'monospace', color: '#0f172a', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>{user.passport || '—'}</span>
+                        </span>
+                      </div>
+                    </td>
                     <td><span style={{ color: '#d97706', background: '#fef3c7', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85em' }}><FaUserClock /> Pending</span></td>
                     <td>
                       <div style={{ display: 'flex', gap: '8px' }}>
@@ -329,7 +342,7 @@ const AdminDashboard = () => {
                   </tr>
                 ))}
                 {users.filter((u) => !u.is_approved).length === 0 && (
-                  <tr><td colSpan="4" style={{ padding: '15px', textAlign: 'center', color: '#64748b' }}>No pending registrations.</td></tr>
+                  <tr><td colSpan="5" style={{ padding: '15px', textAlign: 'center', color: '#64748b' }}>No pending registrations.</td></tr>
                 )}
               </tbody>
             </table>
